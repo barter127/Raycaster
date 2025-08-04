@@ -146,11 +146,10 @@ void Level1::Render()
 
     int* pixelData = (int*)tempTexture->GetPixelData();
 
-    SDL_Texture* screenBuffer = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_Surface* screenBuffer = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 2, SDL_PIXELFORMAT_RGBA32);
 
-    void* pixels;
-    int pitch;
-    SDL_LockTexture(screenBuffer, NULL, &pixels, &pitch);
+    SDL_LockSurface(screenBuffer);
+    SDL_FillRect(screenBuffer, NULL, 0xD38C9BFF);
 
     // Clear the buffer.
 
@@ -270,12 +269,13 @@ void Level1::Render()
             if (side == 1) colour = colour / 2;
 
             // Copy buffer into locked texture memory
-            std::memcpy((int*)pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
+            std::memcpy((int*)screenBuffer->pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
         }
 
     }
-        SDL_UnlockTexture(screenBuffer);
+        SDL_UnlockSurface(screenBuffer);
+        SDL_Texture* backTexture = SDL_CreateTextureFromSurface(m_renderer, screenBuffer);
 
         // Render to screen
-        SDL_RenderCopy(m_renderer, screenBuffer, NULL, NULL);
+        SDL_RenderCopy(m_renderer, backTexture, NULL, NULL);
 }
