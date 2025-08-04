@@ -31,9 +31,40 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] = {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
+#include "Surface2D.h"
+#include "WindowConstants.h"
+
+#ifndef _TRANSLATE_COLOUR
+#define _TRANSLATE_COLOUR
+SDL_Color TranslateColour(Uint32 int_colour) {
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    SDL_Color colour = {
+        (int_colour >> 24) & 0xFF,  // Red
+        (int_colour >> 16) & 0xFF,  // Green
+        (int_colour >> 8) & 0xFF,  // Blue
+        int_colour & 0xFF   // Alpha
+    };
+
+#else
+    SDL_Color colour = {
+        int_colour & 0xFF,        // Red
+        (int_colour >> 8) & 0xFF,        // Green
+        (int_colour >> 16) & 0xFF,        // Blue
+        (int_colour >> 24) & 0xFF         // Alpha
+    };
+#endif
+
+    return colour;
+}
+
+#endif // !_TRANSLATE_COLOUR
+
+Surface2D* tempTexture = nullptr;
+
 Level1::Level1(SDL_Renderer* renderer) : Screen(renderer)
 {
-   
+    tempTexture = new Surface2D(m_renderer);
+    tempTexture->LoadFromFile("Assets/redbrick.png");
 }
 
 Level1::~Level1()
@@ -100,17 +131,23 @@ void Level1::Update(float deltaTime, SDL_Event event)
             }
         }
     }
-
-
 }
 
 void Level1::Render()
 {
-
     int width = 640;
+    int height = 480;
+
+    int texWidth = 64;
+    int texHeight = 64;
+
+    Uint32* buffer = new Uint32[SCREEN_HEIGHT * SCREEN_WIDTH];
+    int* pixelData = (int*)tempTexture->GetPixelData();
 
     for (int x = 0; x < width; x++)
     {
+
+        // GUT THIS AFTER RAYCAST FINISHED.
         // Calculate ray position and direction.
         float cameraX = 2 * x / float(width) - 1; // X coordinate in camera space.
         float rayDirX = dirX + planeX * cameraX;
@@ -180,9 +217,8 @@ void Level1::Render()
 
         //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
         if (side == 0) perpWallDist = (sideDistX - deltaDistX);
-        else          perpWallDist = (sideDistY - deltaDistY);
+        else  perpWallDist = (sideDistY - deltaDistY);
 
-        int height = 480;
 
         //Calculate height of line to draw on screen
         int lineHeight = (int)(height / perpWallDist);
@@ -193,18 +229,52 @@ void Level1::Render()
         int drawEnd = lineHeight / 2 + height / 2;
         if (drawEnd >= height)drawEnd = height - 1;
 
-        SDL_Color colour;
+        Uint32 colourUInt = 0;
+        SDL_Color colourSDL = { 0, 0, 0, 0 };
 
-        switch (worldMap[mapX][mapY])
+        //texturing calculations
+        int texNum = worldMap[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+
+        //calculate value of wallX
+        double wallX; //where exactly the wall was hit
+        if (side == 0) wallX = posY + perpWallDist * rayDirY;
+        else           wallX = posX + perpWallDist * rayDirX;
+        wallX -= floor((wallX));
+
+        //x coordinate on the texture
+       int texX = int(wallX * double(texWidth));
+       if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+       if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+
+        // How much to increase the texture coordinate per screen pixel
+        double step = 1.0f * texHeight / lineHeight;
+        //Starting texture coordinate
+        double texPos = (drawStart - height / 2 + lineHeight / 2) * step;
+        for (int y = drawStart; y < drawEnd; y++)
         {
-            case 1:  colour = { 255, 0, 0, 255 };    break; //red
-            case 2:  colour = { 0, 255, 0, 255 };  break; //green
-            case 3:  colour = { 0, 0, 255, 255 };   break; //blue
-            case 4:  colour = { 255, 255, 255, 255 };  break; //white
-            default: colour = { 255, 255, 0, 255 }; break; //yellow
-        }
+            // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+            int texY = (int)texPos & (texHeight - 1);
+            texPos += step;
+            colourUInt = pixelData[texHeight * texY + texX];
 
-        SDL_SetRenderDrawColor(m_renderer, colour.r, colour.g, colour.b, colour.a);
-        int result = SDL_RenderDrawLine(m_renderer, x, drawStart, x, drawEnd);
+            // Make colour darker for y-sides.
+            // if (side == 1) colour = colour / 2;
+            buffer[y * SCREEN_WIDTH + x] = colourUInt;
+        }
+        // Copy screen buffer to texture
+        SDL_Texture* tempTex = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        void* pixels;
+        int pitch;
+        SDL_LockTexture(tempTex, NULL, &pixels, &pitch);
+
+        // Copy buffer into locked texture memory
+        std::memcpy(pixels, buffer, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+
+        SDL_UnlockTexture(tempTex);
+
+        // Render to screen
+        SDL_RenderCopy(m_renderer, tempTex, NULL, NULL);
+        SDL_DestroyTexture(tempTex);  // Consider reusing this texture instead
     }
 }

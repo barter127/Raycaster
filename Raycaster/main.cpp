@@ -4,9 +4,7 @@
 #include "SDL_image.h"
 
 #include "ScreenManager.h"
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#include "WindowConstants.h"
 
 bool InitSDL();
 bool CloseSDL();

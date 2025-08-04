@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _Level1_Screen_H
-#define _Level1_Screen_H
+#ifndef _LEVEL1_SCREEN_H
+#define _LEVEL1_SCREEN_H
 
 #include "SDL.h"
 #include "Screen.h"
