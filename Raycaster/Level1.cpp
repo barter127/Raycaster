@@ -60,9 +60,12 @@ SDL_Color TranslateColour(Uint32 int_colour) {
 #endif // !_TRANSLATE_COLOUR
 
 Surface2D* tempTexture = nullptr;
+// SDL_Texture* screenBuffer = nullptr;
 
 Level1::Level1(SDL_Renderer* renderer) : Screen(renderer)
 {
+    // screenBuffer = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+
     tempTexture = new Surface2D(m_renderer);
     tempTexture->LoadFromFile("Assets/redbrick.png");
 }
@@ -141,8 +144,15 @@ void Level1::Render()
     int texWidth = 64;
     int texHeight = 64;
 
-    Uint32* buffer = new Uint32[SCREEN_HEIGHT * SCREEN_WIDTH];
     int* pixelData = (int*)tempTexture->GetPixelData();
+
+    SDL_Texture* screenBuffer = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    void* pixels;
+    int pitch;
+    SDL_LockTexture(screenBuffer, NULL, &pixels, &pitch);
+
+    // Clear the buffer.
 
     for (int x = 0; x < width; x++)
     {
@@ -229,8 +239,7 @@ void Level1::Render()
         int drawEnd = lineHeight / 2 + height / 2;
         if (drawEnd >= height)drawEnd = height - 1;
 
-        Uint32 colourUInt = 0;
-        SDL_Color colourSDL = { 0, 0, 0, 0 };
+        Uint32 colour = 0;
 
         //texturing calculations
         int texNum = worldMap[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
@@ -255,26 +264,18 @@ void Level1::Render()
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
             int texY = (int)texPos & (texHeight - 1);
             texPos += step;
-            colourUInt = pixelData[texHeight * texY + texX];
+            colour = pixelData[texHeight * texY + texX];
 
             // Make colour darker for y-sides.
-            // if (side == 1) colour = colour / 2;
-            buffer[y * SCREEN_WIDTH + x] = colourUInt;
+            if (side == 1) colour = colour / 2;
+
+            // Copy buffer into locked texture memory
+            std::memcpy((int*)pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
         }
-        // Copy screen buffer to texture
-        SDL_Texture* tempTex = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        void* pixels;
-        int pitch;
-        SDL_LockTexture(tempTex, NULL, &pixels, &pitch);
-
-        // Copy buffer into locked texture memory
-        std::memcpy(pixels, buffer, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
-
-        SDL_UnlockTexture(tempTex);
+    }
+        SDL_UnlockTexture(screenBuffer);
 
         // Render to screen
-        SDL_RenderCopy(m_renderer, tempTex, NULL, NULL);
-        SDL_DestroyTexture(tempTex);  // Consider reusing this texture instead
-    }
+        SDL_RenderCopy(m_renderer, screenBuffer, NULL, NULL);
 }
