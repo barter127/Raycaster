@@ -18,21 +18,32 @@ public:
 	Surface2D(SDL_Renderer* renderer);
 	~Surface2D();
 
-	// Read image data using the path parameter.
-	// Creates SDL_Sample and sets m_sample using image data.
-	// Sets width and height member vars.
+	/**
+	 * \brief Read image data using the path parameter.
+	 *
+	 * Creates SDL_Sample and sets m_sample using image data.
+	 * 
+	 * Sets width and height member vars.
+	 *
+	 * \param File path of image.
+	 * 
+	 * \returns True if file loaded successfully.
+	 */
 	bool LoadFromFile(std::string path);
 
-	// Free up texture memory.
-	// Set width and height to 0.
+	/**
+	* \brief Frees m_surface member
+	* 
+	* Sets height and width to 0.
+	*/
 	void Free();
 
 	inline void* GetPixelData() { return m_surface->pixels; }
 
-	// Return textures width.
+	// \returns Surfaces width.
 	inline int GetWidth() { return m_width; }
 
-	// Returns textures height.
+	// \returns Surfaces height.
 	inline int GetHeight() { return m_height; }
 };
 

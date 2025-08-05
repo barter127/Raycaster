@@ -1,6 +1,10 @@
 #include "Level1.h"
+
 #include <cmath>
 #include <iostream>
+
+#include "WindowConstants.h"
+#include "Surface2D.h"
 
 #define MAP_WIDTH 24
 #define MAP_HEIGHT 24
@@ -31,55 +35,27 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] = {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-#include "Surface2D.h"
-#include "WindowConstants.h"
-
-#ifndef _TRANSLATE_COLOUR
-#define _TRANSLATE_COLOUR
-SDL_Color TranslateColour(Uint32 int_colour) {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    SDL_Color colour = {
-        (int_colour >> 24) & 0xFF,  // Red
-        (int_colour >> 16) & 0xFF,  // Green
-        (int_colour >> 8) & 0xFF,  // Blue
-        int_colour & 0xFF   // Alpha
-    };
-
-#else
-    SDL_Color colour = {
-        int_colour & 0xFF,        // Red
-        (int_colour >> 8) & 0xFF,        // Green
-        (int_colour >> 16) & 0xFF,        // Blue
-        (int_colour >> 24) & 0xFF         // Alpha
-    };
-#endif
-
-    return colour;
-}
-
-#endif // !_TRANSLATE_COLOUR
-
-Surface2D* tempTexture = nullptr;
-// SDL_Texture* screenBuffer = nullptr;
-
 Level1::Level1(SDL_Renderer* renderer) : Screen(renderer)
 {
-    // screenBuffer = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    wallTexture = new Surface2D(m_renderer);
+    wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
 
-    tempTexture = new Surface2D(m_renderer);
-    tempTexture->LoadFromFile("Assets/redbrick.png");
+    floorTexture = new Surface2D(m_renderer);
+    floorTexture->LoadFromFile("Assets/Dirt_Road_64x64.png");
+
+    ceilingTexture = new Surface2D(m_renderer);
+    ceilingTexture->LoadFromFile("Assets/Wooden_Floor_Horizontal_64x64.png");
+
+    screenBuffer = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 2, SDL_PIXELFORMAT_RGBA32);
 }
 
 Level1::~Level1()
 {
+    delete wallTexture;
+    wallTexture = nullptr;
 
+    wallTexture->Free();
 }
-
-float posX = 22, posY = 12;  // X and y start position.
-float dirX = -1, dirY = 0; // Initial direction vector.
-float planeX = 0, planeY = 0.66; // The 2d raycaster version of camera plane.
-float moveSpeed = 2.0f;
-float rotSpeed = 1.0f;
 
 void Level1::Update(float deltaTime, SDL_Event event)
 {
@@ -144,18 +120,68 @@ void Level1::Render()
     int texWidth = 64;
     int texHeight = 64;
 
-    int* pixelData = (int*)tempTexture->GetPixelData();
-
-    SDL_Surface* screenBuffer = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 2, SDL_PIXELFORMAT_RGBA32);
-
-    SDL_LockSurface(screenBuffer);
-    SDL_FillRect(screenBuffer, NULL, 0xD38C9BFF);
+    int* wallPixelData = (int*)wallTexture->GetPixelData();
+    int* floorPixelData = (int*)floorTexture->GetPixelData();
+    int* ceilPixelData = (int*)ceilingTexture->GetPixelData();
 
     // Clear the buffer.
+    SDL_LockSurface(screenBuffer);
+    SDL_FillRect(screenBuffer, NULL, 0xe0afba);
+
+    for (int y = 0; y < height; y++)
+    {
+        // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+        float rayDirX0 = dirX - planeX;
+        float rayDirY0 = dirY - planeY;
+        float rayDirX1 = dirX + planeX;
+        float rayDirY1 = dirY + planeY;
+
+        // Current y position compared to the center of the screen (the horizon).
+        int p = y - SCREEN_HEIGHT / 2;
+
+        // Vertical position of the camera.
+        float posZ = 0.5 * SCREEN_HEIGHT;
+
+        // Horizontal distance from the camera to the floor for the current row.
+        // 0.5 is the z position exactly in the middle between floor and ceiling.
+        float rowDistance = posZ / p;
+
+        // Calculate the real world step vector we have to add for each x (parallel to camera plane).
+        // Adding step by step avoids multiplications with a weight in the inner loop.
+        float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / SCREEN_WIDTH;
+        float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / SCREEN_WIDTH;
+
+        // Real world coordinates of the leftmost column. This will be updated as we step to the right.
+        float floorX = posX + rowDistance * rayDirX0;
+        float floorY = posY + rowDistance * rayDirY0;
+
+        for (int x = 0; x < SCREEN_WIDTH; ++x)
+        {
+            // The cell coord is simply got from the integer parts of floorX and floorY.
+            int cellX = (int)(floorX);
+            int cellY = (int)(floorY);
+
+            // Get the texture coordinate from the fractional part.
+            int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
+            int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
+
+            floorX += floorStepX;
+            floorY += floorStepY;
+
+            Uint32 colour;
+
+            // Ceiling
+            colour = floorPixelData[texWidth * ty + tx];
+            std::memcpy((int*)screenBuffer->pixels + y * SCREEN_WIDTH + x, & colour, sizeof(colour));
+
+            // Floor
+            colour = ceilPixelData[texWidth * ty + tx];
+            std::memcpy((int*)screenBuffer->pixels + (SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x, &colour, sizeof(colour));
+        }
+    }
 
     for (int x = 0; x < width; x++)
     {
-
         // GUT THIS AFTER RAYCAST FINISHED.
         // Calculate ray position and direction.
         float cameraX = 2 * x / float(width) - 1; // X coordinate in camera space.
@@ -175,7 +201,7 @@ void Level1::Render()
         float deltaDistY = (rayDirY == 0) ? 1e30 : abs(1 / rayDirY);
         float perpWallDist;
 
-        // What direction to step in x or y-direction (either +1 or -1.
+        // What direction to step in x or y-direction (either +1 or -1).
         int stepX;
         int stepY;
 
@@ -204,10 +230,10 @@ void Level1::Render()
             sideDistY = (mapY + 1.0 - posY) * deltaDistY;
         }
 
-        //perform DDA
+        // Perform DDA.
         while (hit == 0)
         {
-            //jump to next map square, either in x-direction, or in y-direction
+            // Jump to next map square, either in x-direction, or in y-direction.
             if (sideDistX < sideDistY)
             {
                 sideDistX += deltaDistX;
@@ -220,19 +246,19 @@ void Level1::Render()
                 mapY += stepY;
                 side = 1;
             }
-            //Check if ray has hit a wall
+            // Check if ray has hit a wall.
             if (worldMap[mapX][mapY] > 0) hit = 1;
         }
 
-        //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
+        // Calculate distance projected on camera direction.
         if (side == 0) perpWallDist = (sideDistX - deltaDistX);
         else  perpWallDist = (sideDistY - deltaDistY);
 
 
-        //Calculate height of line to draw on screen
+        // Calculate height of line to draw on screen.
         int lineHeight = (int)(height / perpWallDist);
 
-        //calculate lowest and highest pixel to fill in current stripe
+        // Calculate lowest and highest pixel to fill in current stripe.
         int drawStart = -lineHeight / 2 + height / 2;
         if (drawStart < 0)drawStart = 0;
         int drawEnd = lineHeight / 2 + height / 2;
@@ -240,42 +266,45 @@ void Level1::Render()
 
         Uint32 colour = 0;
 
-        //texturing calculations
-        int texNum = worldMap[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+        // Texturing calculations.
+        int texNum = worldMap[mapX][mapY];
 
-        //calculate value of wallX
-        double wallX; //where exactly the wall was hit
+        // Calculate value of wallX.
+        float wallX; //Where the wall was hit
         if (side == 0) wallX = posY + perpWallDist * rayDirY;
         else           wallX = posX + perpWallDist * rayDirX;
         wallX -= floor((wallX));
 
-        //x coordinate on the texture
-       int texX = int(wallX * double(texWidth));
+        // X coordinate on the texture.
+       int texX = int(wallX * float(texWidth));
        if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
        if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
 
         // How much to increase the texture coordinate per screen pixel
-        double step = 1.0f * texHeight / lineHeight;
+        float step = 1.0f * texHeight / lineHeight;
         //Starting texture coordinate
-        double texPos = (drawStart - height / 2 + lineHeight / 2) * step;
+        float texPos = (drawStart - height / 2 + lineHeight / 2) * step;
         for (int y = drawStart; y < drawEnd; y++)
         {
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
             int texY = (int)texPos & (texHeight - 1);
             texPos += step;
-            colour = pixelData[texHeight * texY + texX];
+            colour = wallPixelData[texHeight * texY + texX];
 
             // Make colour darker for y-sides.
             if (side == 1) colour = colour / 2;
 
-            // Copy buffer into locked texture memory
+            // Copy buffer into locked texture memory.
             std::memcpy((int*)screenBuffer->pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
         }
 
     }
-        SDL_UnlockSurface(screenBuffer);
-        SDL_Texture* backTexture = SDL_CreateTextureFromSurface(m_renderer, screenBuffer);
 
-        // Render to screen
-        SDL_RenderCopy(m_renderer, backTexture, NULL, NULL);
+    SDL_UnlockSurface(screenBuffer);
+    screenTexture = SDL_CreateTextureFromSurface(m_renderer, screenBuffer);
+
+    // Render to screen
+    SDL_RenderCopy(m_renderer, screenTexture, NULL, NULL);
+
+    SDL_DestroyTexture(screenTexture);
 }
