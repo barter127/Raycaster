@@ -125,7 +125,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Level1.cpp" />
-    <ClCompile Include="Surface2D.cpp" />
+    <ClCompile Include="LevelRenderer.cpp" />
+    <ClCompile Include="LevelTexture.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="main.cpp" />
@@ -136,7 +137,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Level1.h" />
-    <ClInclude Include="Surface2D.h" />
+    <ClInclude Include="LevelRenderer.h" />
+    <ClInclude Include="LevelTexture.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="Texture2D.h" />

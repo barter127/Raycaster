@@ -1,18 +1,18 @@
-#include "Surface2D.h"
+#include "LevelTexture.h"
 
 #include <SDL_image.h>
 #include <SDL_surface.h>
 
 #include <iostream>
 
-Surface2D::Surface2D(SDL_Renderer* renderer) : m_renderer(renderer) {}
+LevelTexture::LevelTexture(SDL_Renderer* renderer) : m_renderer(renderer) {}
 
-Surface2D::~Surface2D()
+LevelTexture::~LevelTexture()
 {
 
 }
 
-bool Surface2D::LoadFromFile(std::string path)
+bool LevelTexture::LoadFromFile(std::string path)
 {
 	Free();
 
@@ -28,7 +28,7 @@ bool Surface2D::LoadFromFile(std::string path)
 	return true;
 }
 
-void Surface2D::Free()
+void LevelTexture::Free()
 {
 	// Clear size vars.
 	m_width = 0;

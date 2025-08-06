@@ -30,7 +30,10 @@
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Surface2D.cpp">
+    <ClCompile Include="LevelTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,10 +53,13 @@
     <ClInclude Include="Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Surface2D.h">
+    <ClInclude Include="LevelTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,7 +6,7 @@
 #include "SDL.h"
 #include <string>
 
-class Surface2D
+class LevelTexture
 {
 protected:
 	SDL_Renderer* m_renderer = nullptr;
@@ -15,13 +15,13 @@ protected:
 	int m_width = 0, m_height = 0;
 
 public:
-	Surface2D(SDL_Renderer* renderer);
-	~Surface2D();
+	LevelTexture(SDL_Renderer* renderer);
+	~LevelTexture();
 
 	/**
 	 * \brief Read image data using the path parameter.
 	 *
-	 * Creates SDL_Sample and sets m_sample using image data.
+	 * Creates SDL_Sample and sets m_surface using image data.
 	 * 
 	 * Sets width and height member vars.
 	 *
