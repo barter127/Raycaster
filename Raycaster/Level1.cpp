@@ -57,6 +57,9 @@ Level1::~Level1()
     wallTexture->Free();
 }
 
+int floorTex1Multiplier = 2;
+int floorTex2Multiplier = 1;
+
 void Level1::Update(float deltaTime, SDL_Event event)
 {
     switch (event.type)
@@ -105,8 +108,16 @@ void Level1::Update(float deltaTime, SDL_Event event)
                     break;
                 }
 
-                default:
-                    std::cout << "No input";
+                case SDLK_EQUALS:
+                    floorTex1Multiplier++;
+                    break;
+
+                case SDLK_MINUS:
+                    floorTex1Multiplier--;
+
+                    // Clamp to prevent negative values.
+                    if (floorTex1Multiplier < 0) floorTex1Multiplier = 0;
+                    break;
             }
         }
     }
@@ -120,8 +131,11 @@ void Level1::Render()
     int texWidth = 64;
     int texHeight = 64;
 
+    bool floorIsCheckered = true;
+
     int* wallPixelData = (int*)wallTexture->GetPixelData();
-    int* floorPixelData = (int*)floorTexture->GetPixelData();
+    int* floor1PixelData = (int*)floorTexture->GetPixelData();
+    int* floor2PixelData = (int*)wallTexture->GetPixelData();
     int* ceilPixelData = (int*)ceilingTexture->GetPixelData();
 
     // Clear the buffer.
@@ -158,8 +172,8 @@ void Level1::Render()
         for (int x = 0; x < SCREEN_WIDTH; ++x)
         {
             // The cell coord is simply got from the integer parts of floorX and floorY.
-            int cellX = (int)(floorX);
-            int cellY = (int)(floorY);
+            int cellX = int(floorX);
+            int cellY = int(floorY);
 
             // Get the texture coordinate from the fractional part.
             int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
@@ -170,11 +184,15 @@ void Level1::Render()
 
             Uint32 colour;
 
-            // Ceiling
-            colour = floorPixelData[texWidth * ty + tx];
-            std::memcpy((int*)screenBuffer->pixels + y * SCREEN_WIDTH + x, & colour, sizeof(colour));
+            int checkerBoardPattern = (int(cellX + cellY)) % floorTex1Multiplier;
+
+            if (checkerBoardPattern < floorTex2Multiplier && floorIsCheckered) colour = floor2PixelData[texWidth * ty + tx];
+            else colour = floor1PixelData[texWidth * ty + tx];
 
             // Floor
+            std::memcpy((int*)screenBuffer->pixels + y * SCREEN_WIDTH + x, & colour, sizeof(colour));
+
+            // Ceiling
             colour = ceilPixelData[texWidth * ty + tx];
             std::memcpy((int*)screenBuffer->pixels + (SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x, &colour, sizeof(colour));
         }
