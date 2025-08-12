@@ -6,7 +6,8 @@
 #include "WindowConstants.h"
 #include "LevelRenderer.h"
 
-Level1::Level1(SDL_Renderer* renderer) : Screen(renderer)
+Level1::Level1(SDL_Renderer* renderer) 
+    : Screen(renderer)
 {
     m_levelRender = new LevelRenderer(m_renderer);
 }

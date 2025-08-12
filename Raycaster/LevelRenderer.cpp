@@ -1,47 +1,75 @@
 #include "LevelRenderer.h"
 
 #include <iostream>
+#include <assert.h>
 
 #include "WindowConstants.h"
 #include "LevelTexture.h"
 
-LevelRenderer::LevelRenderer(SDL_Renderer* renderer) : m_renderer(renderer)
+LevelRenderer::LevelRenderer(SDL_Renderer* renderer) 
+    : m_renderer(renderer)
 {
-    wallTexture = new LevelTexture(m_renderer);
-    wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
+    m_wallTexture = new LevelTexture(m_renderer);
+    m_wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
 
-    floorTexture = new LevelTexture(m_renderer);
-    floorTexture->LoadFromFile("Assets/Dirt_Road_64x64.png");
+    m_floorTexture = new LevelTexture(m_renderer);
+    m_floorTexture->LoadFromFile("Assets/Dirt_Road_64x64.png");
 
-    ceilingTexture = new LevelTexture(m_renderer);
-    ceilingTexture->LoadFromFile("Assets/Wooden_Floor_Horizontal_64x64.png");
+    m_ceilingTexture = new LevelTexture(m_renderer);
+    m_ceilingTexture->LoadFromFile("Assets/Wooden_Floor_Horizontal_64x64.png");
 
-    m_wallPixelData = (int*)wallTexture->GetPixelData();
-    m_floor1PixelData = (int*)floorTexture->GetPixelData();
-    m_floor2PixelData = (int*)wallTexture->GetPixelData();
-    m_ceilPixelData = (int*)ceilingTexture->GetPixelData();
+    m_wallPixelData = (int*)m_wallTexture->GetPixelData();
+    m_floor1PixelData = (int*)m_floorTexture->GetPixelData();
+    m_floor2PixelData = (int*)m_wallTexture->GetPixelData();
+    m_ceilPixelData = (int*)m_ceilingTexture->GetPixelData();
+
+    LevelTexture* water = new LevelTexture(m_renderer);
+    water->LoadFromFile("Assets/Water_64x64.png");
+
+    LevelTexture* lava = new LevelTexture(m_renderer);
+    lava->LoadFromFile("Assets/Magma_Floor_64x64.png");
+
+    LevelTexture* moss = new LevelTexture(m_renderer);
+    moss->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
+
+    LevelTexture* earth = new LevelTexture(m_renderer);
+    earth->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
+
+    LevelTexture* metal = new LevelTexture(m_renderer);
+    metal->LoadFromFile("Assets/Metal_Floor_64x64.png");
+
+    LevelTexture* road = new LevelTexture(m_renderer);
+    road->LoadFromFile("Assets/Rocky_Road_64x64.png");
+
+    m_levelTextureArray[0] = water;
+    m_levelTextureArray[1] = lava;
+    m_levelTextureArray[2] = moss;
+    m_levelTextureArray[3] = earth;
+    m_levelTextureArray[4] = metal;
 
     m_backBuffer = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 2, SDL_PIXELFORMAT_RGBA32);
 }
 
 LevelRenderer::~LevelRenderer()
 {
-    delete wallTexture;
-    wallTexture = nullptr;
-    wallTexture->Free();
+    delete m_wallTexture;
+    m_wallTexture = nullptr;
+    m_wallTexture->Free();
 
-    delete floorTexture;
-    floorTexture = nullptr;
-    floorTexture->Free();
+    delete m_floorTexture;
+    m_floorTexture = nullptr;
+    m_floorTexture->Free();
 
-    delete ceilingTexture;
-    ceilingTexture = nullptr;
-    ceilingTexture->Free();
+    delete m_ceilingTexture;
+    m_ceilingTexture = nullptr;
+    m_ceilingTexture->Free();
 
     m_wallPixelData = nullptr;
     m_floor1PixelData = nullptr;
     m_floor2PixelData = nullptr;
     m_ceilPixelData = nullptr;
+
+    delete[] m_levelTextureArray;
 }
 
 void LevelRenderer::Render()
@@ -64,12 +92,6 @@ void LevelRenderer::Render()
     SDL_DestroyTexture(m_frontBuffer);
 }
 
-// Temporary variables until UI and Map Editor is implemented.
-int texWidth = 64;
-int texHeight = 64;
-
-bool floorIsCheckered = true;
-
 #define MAP_WIDTH 24
 #define MAP_HEIGHT 24
 int worldMap[MAP_WIDTH][MAP_HEIGHT] = {
@@ -84,7 +106,7 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] = {
   {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -103,7 +125,6 @@ void LevelRenderer::RenderWalls()
 {
     for (int x = 0; x < SCREEN_WIDTH; x++)
     {
-        // GUT THIS AFTER RAYCAST FINISHED.
         // Calculate ray position and direction.
         float cameraX = 2 * x / float(SCREEN_WIDTH) - 1; // X coordinate in camera space.
         float rayDirX = m_dirX + m_planeX * cameraX;
@@ -123,11 +144,11 @@ void LevelRenderer::RenderWalls()
         float perpWallDist;
 
         // What direction to step in x or y-direction (either +1 or -1).
-        int stepX;
-        int stepY;
+        int stepX = 0;
+        int stepY = 0;
 
         int hit = 0; // Was there a wall hit?
-        int side; // Was a NS or a EW wall hit?
+        int side = 0; // Was a NS or a EW wall hit?
 
         // Calculate step and initial sideDist.
         if (rayDirX < 0)
@@ -188,7 +209,10 @@ void LevelRenderer::RenderWalls()
         Uint32 colour = 0;
 
         // Texturing calculations.
-        int texNum = worldMap[mapX][mapY];
+        int texNum = worldMap[mapX][mapY] - 1;
+
+        int texWidth = m_levelTextureArray[texNum]->GetWidth();
+        int texHeight = m_levelTextureArray[texNum]->GetHeight();
 
         // Calculate value of wallX.
         float wallX; //Where the wall was hit
@@ -210,7 +234,9 @@ void LevelRenderer::RenderWalls()
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
             int texY = (int)texPos & (texHeight - 1);
             texPos += step;
-            colour = m_wallPixelData[texHeight * texY + texX];
+
+            int* pixelData = (int*)m_levelTextureArray[texNum]->GetPixelData();
+            colour = pixelData[texHeight * texY + texX];
 
             // Make colour darker for y-sides.
             if (side == 1) colour = colour / 2;
@@ -218,12 +244,18 @@ void LevelRenderer::RenderWalls()
             // Copy buffer into locked texture memory.
             std::memcpy((int*)m_backBuffer->pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
         }
-
     }
 }
 
 void LevelRenderer::RenderCeilRoof()
 {
+    // Make sure ceiling and floor has the same dimensions.
+    assert(m_floorTexture->GetHeight() == m_ceilingTexture->GetHeight());
+    assert(m_floorTexture->GetWidth() == m_ceilingTexture->GetWidth());
+
+    int texWidth = m_floorTexture->GetWidth();
+    int texHeight = m_floorTexture->GetHeight();
+
     for (int y = 0; y < SCREEN_HEIGHT; y++)
     {
         // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
@@ -264,11 +296,11 @@ void LevelRenderer::RenderCeilRoof()
             floorX += floorStepX;
             floorY += floorStepY;
 
-            Uint32 colour;
+            Uint32 colour = 0;
 
             int checkerBoardPattern = (int(cellX + cellY)) % floorTex1Multiplier;
 
-            if (checkerBoardPattern < floorTex2Multiplier && floorIsCheckered) colour = m_floor2PixelData[texWidth * ty + tx];
+            if (checkerBoardPattern < floorTex2Multiplier && m_floorIsCheckered) colour = m_floor2PixelData[texWidth * ty + tx];
             else colour = m_floor1PixelData[texWidth * ty + tx];
 
             // Floor

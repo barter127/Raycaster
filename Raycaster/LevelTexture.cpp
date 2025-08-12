@@ -25,6 +25,9 @@ bool LevelTexture::LoadFromFile(std::string path)
 		return false;
 	}
 	
+	m_width = m_surface->w;
+	m_height = m_surface->h;
+
 	return true;
 }
 

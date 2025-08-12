@@ -1,6 +1,7 @@
 #include "Screen.h"
 
-Screen::Screen(SDL_Renderer* renderer) : m_renderer(renderer) {}
+Screen::Screen(SDL_Renderer* renderer) 
+	: m_renderer(renderer) {}
 
 Screen::~Screen()
 {

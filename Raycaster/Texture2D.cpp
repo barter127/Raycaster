@@ -5,7 +5,9 @@
 
 #include <SDL_image.h>
 
-Texture2D::Texture2D(SDL_Renderer* renderer) : m_renderer(renderer), m_texture(nullptr) {}
+Texture2D::Texture2D(SDL_Renderer* renderer) 
+	: m_renderer(renderer), 
+	m_texture(nullptr) {}
 
 Texture2D::~Texture2D()
 {
