@@ -124,24 +124,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Collisions.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Level1.cpp" />
     <ClCompile Include="LevelRenderer.cpp" />
     <ClCompile Include="LevelTexture.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Collisions.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Level1.h" />
     <ClInclude Include="LevelRenderer.h" />
     <ClInclude Include="LevelTexture.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Vector2D.h" />
     <ClInclude Include="WindowConstants.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

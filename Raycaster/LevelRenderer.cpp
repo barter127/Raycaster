@@ -5,6 +5,7 @@
 
 #include "WindowConstants.h"
 #include "LevelTexture.h"
+#include "Vector2D.h"
 
 LevelRenderer::LevelRenderer(SDL_Renderer* renderer) 
     : m_renderer(renderer)
@@ -69,14 +70,14 @@ LevelRenderer::~LevelRenderer()
     delete[] m_levelTextureArray;
 }
 
-void LevelRenderer::Render()
+void LevelRenderer::Render(Vector2D position)
 {
     // Clear the buffer.
     SDL_LockSurface(m_backBuffer);
     SDL_FillRect(m_backBuffer, NULL, 0xe0afba);
 
-    RenderCeilRoof();
-    RenderWalls();
+    RenderCeilRoof(position);
+    RenderWalls(position);
 
     // Unlock buffer.
     SDL_UnlockSurface(m_backBuffer);
@@ -118,7 +119,7 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] = {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-void LevelRenderer::RenderWalls()
+void LevelRenderer::RenderWalls(Vector2D position)
 {
     for (int x = 0; x < SCREEN_WIDTH; x++)
     {
@@ -128,8 +129,8 @@ void LevelRenderer::RenderWalls()
         float rayDirY = m_dirY + m_planeY * cameraX;
 
         // Which box of the map we're in.
-        int mapX = int(m_posX);
-        int mapY = int(m_posY);
+        int mapX = int(position.x);
+        int mapY = int(position.y);
 
         // Length of ray from current position to next x or y side.
         float sideDistX;
@@ -151,22 +152,22 @@ void LevelRenderer::RenderWalls()
         if (rayDirX < 0)
         {
             stepX = -1;
-            sideDistX = (m_posX - mapX) * deltaDistX;
+            sideDistX = (position.x - mapX) * deltaDistX;
         }
         else
         {
             stepX = 1;
-            sideDistX = (mapX + 1.0 - m_posX) * deltaDistX;
+            sideDistX = (mapX + 1.0 - position.x) * deltaDistX;
         }
         if (rayDirY < 0)
         {
             stepY = -1;
-            sideDistY = (m_posY - mapY) * deltaDistY;
+            sideDistY = (position.y - mapY) * deltaDistY;
         }
         else
         {
             stepY = 1;
-            sideDistY = (mapY + 1.0 - m_posY) * deltaDistY;
+            sideDistY = (mapY + 1.0 - position.y) * deltaDistY;
         }
 
         // Perform DDA.
@@ -213,8 +214,8 @@ void LevelRenderer::RenderWalls()
 
         // Calculate value of wallX.
         float wallX; //Where the wall was hit
-        if (side == 0) wallX = m_posY + perpWallDist * rayDirY;
-        else           wallX = m_posX + perpWallDist * rayDirX;
+        if (side == 0) wallX = position.y + perpWallDist * rayDirY;
+        else           wallX = position.x + perpWallDist * rayDirX;
         wallX -= floor((wallX));
 
         // X coordinate on the texture.
@@ -232,7 +233,7 @@ void LevelRenderer::RenderWalls()
             int texY = (int)texPos & (texHeight - 1);
             texPos += step;
 
-            colour = GetPixelColour(m_levelTextureArray[texNum], 1000, texY);
+            colour = GetPixelColour(m_levelTextureArray[texNum], texX, texY);
 
             // Make colour darker for y-sides.
             if (side == 1) colour = (colour & 0xfefefefe) >> 1; // Later break colour down to RGBA and allow control of components.
@@ -242,7 +243,7 @@ void LevelRenderer::RenderWalls()
     }
 }
 
-void LevelRenderer::RenderCeilRoof()
+void LevelRenderer::RenderCeilRoof(Vector2D position)
 {
     // Make sure ceiling and floor has the same dimensions.
     assert(m_floorTexture->GetHeight() == m_ceilingTexture->GetHeight());
@@ -275,8 +276,8 @@ void LevelRenderer::RenderCeilRoof()
         float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / SCREEN_WIDTH;
 
         // Real world coordinates of the leftmost column. This will be updated as we step to the right.
-        float floorX = m_posX + rowDistance * rayDirX0;
-        float floorY = m_posY + rowDistance * rayDirY0;
+        float floorX = position.x + rowDistance * rayDirX0;
+        float floorY = position.y + rowDistance * rayDirY0;
 
         for (int x = 0; x < SCREEN_WIDTH; ++x)
         {

@@ -6,6 +6,7 @@
 #include "SDL.h"
 #include "Screen.h"
 
+class Player;
 class LevelRenderer;
 
 class Level1 : Screen
@@ -19,6 +20,7 @@ public:
 
 private:
 	LevelRenderer* m_levelRender;
+	Player* m_player;
 };
 
 #endif
