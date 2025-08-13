@@ -8,7 +8,7 @@
 class Player : public GameObject
 { 
 private:
-	float m_movementSpeed = 1;
+	float m_movementSpeed = 5;
 
 public:
 	Player(SDL_Renderer* renderer, Vector2D startPosition);

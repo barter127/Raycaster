@@ -19,11 +19,6 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer)
     m_ceilingTexture = new LevelTexture(m_renderer);
     m_ceilingTexture->LoadFromFile("Assets/Wooden_Floor_Horizontal_64x64.png");
 
-    m_wallPixelData = (int*)m_wallTexture->GetPixelData();
-    m_floor1PixelData = (int*)m_floorTexture->GetPixelData();
-    m_floor2PixelData = (int*)m_wallTexture->GetPixelData();
-    m_ceilPixelData = (int*)m_ceilingTexture->GetPixelData();
-
     LevelTexture* water = new LevelTexture(m_renderer);
     water->LoadFromFile("Assets/Water_64x64.png");
 
@@ -61,11 +56,6 @@ LevelRenderer::~LevelRenderer()
     delete m_ceilingTexture;
     m_ceilingTexture = nullptr;
     m_ceilingTexture->Free();
-
-    m_wallPixelData = nullptr;
-    m_floor1PixelData = nullptr;
-    m_floor2PixelData = nullptr;
-    m_ceilPixelData = nullptr;
 
     delete[] m_levelTextureArray;
 }
@@ -296,15 +286,15 @@ void LevelRenderer::RenderCeilRoof(Vector2D position)
 
             int checkerBoardPattern = (int(cellX + cellY)) % floorTex1Multiplier;
 
-            if (checkerBoardPattern < floorTex2Multiplier && m_floorIsCheckered) colour = m_floor2PixelData[texWidth * ty + tx];
-            else colour = m_floor1PixelData[texWidth * ty + tx];
+            if (checkerBoardPattern < floorTex2Multiplier && m_floorIsCheckered) colour = GetPixelColour(m_floorTexture, tx, ty);
+            else colour = GetPixelColour(m_levelTextureArray[1], tx, ty); // Arbitrary texture.
 
             // Floor
-            std::memcpy((int*)m_backBuffer->pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
+            CopyPixel(m_backBuffer, m_floorTexture, colour, x, y);
 
             // Ceiling
-            colour = m_ceilPixelData[texWidth * ty + tx];
-            std::memcpy((int*)m_backBuffer->pixels + (SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x, &colour, sizeof(colour));
+            colour = GetPixelColour(m_ceilingTexture, tx, ty);
+            CopyPixel(m_backBuffer, m_ceilingTexture, colour, x, SCREEN_HEIGHT - y);
         }
     }
 }

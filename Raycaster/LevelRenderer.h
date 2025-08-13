@@ -57,12 +57,7 @@ private:
 	LevelTexture* m_floorTexture = nullptr; // Could expand to an array of surfaces.
 	LevelTexture* m_ceilingTexture = nullptr; // Could expand to an array of surfaces.
 
-	LevelTexture* m_levelTextureArray[6];
-
-	int* m_wallPixelData = nullptr;
-	int* m_floor1PixelData = nullptr;
-	int* m_floor2PixelData = nullptr;
-	int* m_ceilPixelData = nullptr;
+	LevelTexture* m_levelTextureArray[5];
 
 	int floorTex1Multiplier = 2;
 	int floorTex2Multiplier = 1;
