@@ -28,14 +28,18 @@ void Player::Update(float deltaTime, SDL_Event event)
                 // Rotate to the right.
                 case SDLK_RIGHT:
                 {
+                    // Cache Cos and Sin values to prevent recaclulcation.
+                    float rotationCos = cosf(-m_rotationSpeed);
+                    float rotationSin = sinf(-m_rotationSpeed);
+
                     // Both camera direction and camera plane must be rotated.
                     float oldDirX = m_direction.x;
-                    m_direction.x = m_direction.x * cos(-m_rotationSpeed) - m_direction.y * sin(-m_rotationSpeed);
-                    m_direction.y = oldDirX * sin(-m_rotationSpeed) + m_direction.y * cos(-m_rotationSpeed);
+                    m_direction.x = m_direction.x * rotationCos - m_direction.y * rotationSin;
+                    m_direction.y = oldDirX * rotationSin + m_direction.y * rotationCos;
 
                     float oldPlaneX = m_plane.x;
-                    m_plane.x = m_plane.x * cos(-m_rotationSpeed) - m_plane.y * sin(-m_rotationSpeed);
-                    m_plane.y = oldPlaneX * sin(-m_rotationSpeed) + m_plane.y * cos(-m_rotationSpeed);
+                    m_plane.x = m_plane.x * rotationCos - m_plane.y * rotationSin;
+                    m_plane.y = oldPlaneX * rotationSin + m_plane.y * rotationCos;
 
                     m_position.y += m_plane.y * m_movementSpeed * deltaTime;
                     break;
@@ -44,14 +48,18 @@ void Player::Update(float deltaTime, SDL_Event event)
                 // Rotate to the left.
                 case SDLK_LEFT:
                 {
+                    // Cache Cos and Sin values to prevent recaclulcation.
+                    float rotationCos = cosf(m_rotationSpeed);
+                    float rotationSin = sinf(m_rotationSpeed);
+
                     // Both camera direction and camera plane must be rotated.
                     float oldDirX = m_direction.x;
-                    m_direction.x = m_direction.x * cos(m_rotationSpeed) - m_direction.y * sin(m_rotationSpeed);
-                    m_direction.y = oldDirX * sin(m_rotationSpeed) + m_direction.y * cos(m_rotationSpeed);
+                    m_direction.x = m_direction.x * rotationCos - m_direction.y * rotationSin;
+                    m_direction.y = oldDirX * rotationSin + m_direction.y * rotationCos;
 
                     float oldPlaneX = m_plane.x;
-                    m_plane.x = m_plane.x * cos(m_rotationSpeed) - m_plane.y * sin(m_rotationSpeed);
-                    m_plane.y = oldPlaneX * sin(m_rotationSpeed) + m_plane.y * cos(m_rotationSpeed);
+                    m_plane.x = m_plane.x * rotationCos - m_plane.y * rotationSin;
+                    m_plane.y = oldPlaneX * rotationSin + m_plane.y * rotationCos;
 
                     //both camera direction and camera plane must be rotated
                     m_position.y -= m_plane.y * m_movementSpeed * deltaTime;
