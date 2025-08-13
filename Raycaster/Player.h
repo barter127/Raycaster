@@ -9,6 +9,7 @@ class Player : public GameObject
 { 
 private:
 	float m_movementSpeed = 5;
+	float m_rotationSpeed = 1.0f;
 
 public:
 	Player(SDL_Renderer* renderer, Vector2D startPosition);
@@ -16,6 +17,9 @@ public:
 
 	void Update(float deltaTime, SDL_Event event);
 	void Render();
+
+	Vector2D m_direction = Vector2D(-1, 0);
+	Vector2D m_plane = Vector2D(0, 0.66f); // The 2d raycaster version of camera plane.
 };
 
 #endif

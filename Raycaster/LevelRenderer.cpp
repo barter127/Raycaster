@@ -60,14 +60,14 @@ LevelRenderer::~LevelRenderer()
     delete[] m_levelTextureArray;
 }
 
-void LevelRenderer::Render(Vector2D position)
+void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane)
 {
     // Clear the buffer.
     SDL_LockSurface(m_backBuffer);
     SDL_FillRect(m_backBuffer, NULL, 0xe0afba);
 
-    RenderCeilRoof(position);
-    RenderWalls(position);
+    RenderCeilRoof(position, direction, plane);
+    RenderWalls(position, direction, plane);
 
     // Unlock buffer.
     SDL_UnlockSurface(m_backBuffer);
@@ -109,14 +109,14 @@ int worldMap[MAP_WIDTH][MAP_HEIGHT] = {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-void LevelRenderer::RenderWalls(Vector2D position)
+void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D plane)
 {
     for (int x = 0; x < SCREEN_WIDTH; x++)
     {
         // Calculate ray position and direction.
         float cameraX = 2 * x / float(SCREEN_WIDTH) - 1; // X coordinate in camera space.
-        float rayDirX = m_dirX + m_planeX * cameraX;
-        float rayDirY = m_dirY + m_planeY * cameraX;
+        float rayDirX = direction.x + plane.x * cameraX;
+        float rayDirY = direction.y + plane.y * cameraX;
 
         // Which box of the map we're in.
         int mapX = int(position.x);
@@ -233,7 +233,7 @@ void LevelRenderer::RenderWalls(Vector2D position)
     }
 }
 
-void LevelRenderer::RenderCeilRoof(Vector2D position)
+void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector2D plane)
 {
     // Make sure ceiling and floor has the same dimensions.
     assert(m_floorTexture->GetHeight() == m_ceilingTexture->GetHeight());
@@ -245,10 +245,10 @@ void LevelRenderer::RenderCeilRoof(Vector2D position)
     for (int y = 0; y < SCREEN_HEIGHT; y++)
     {
         // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-        float rayDirX0 = m_dirX - m_planeX;
-        float rayDirY0 = m_dirY - m_planeY;
-        float rayDirX1 = m_dirX + m_planeX;
-        float rayDirY1 = m_dirY + m_planeY;
+        float rayDirX0 = direction.x - plane.x;
+        float rayDirY0 = direction.y - plane.y;
+        float rayDirX1 = direction.x + plane.x;
+        float rayDirY1 = direction.y + plane.y;
 
         // Current y position compared to the center of the screen (the horizon).
         int p = y - SCREEN_HEIGHT / 2;

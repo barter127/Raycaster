@@ -14,7 +14,7 @@ public:
 	LevelRenderer(SDL_Renderer* renderer);
 	~LevelRenderer();
 
-	void Render(Vector2D position);
+	void Render(Vector2D position, Vector2D direction, Vector2D plane);
 
 private:
 	/**
@@ -24,7 +24,7 @@ private:
 	 *
 	 * Sets width and height member vars.
 	 */
-	void RenderWalls(Vector2D position);
+	void RenderWalls(Vector2D position, Vector2D direction, Vector2D plane);
 
 	/**
 	 * \brief Render ceiling and roof using the set ceiling and floor textures.
@@ -33,7 +33,7 @@ private:
 	 *
 	 * Sets width and height member vars.
 	 */
-	void RenderCeilRoof(Vector2D position);
+	void RenderCeilRoof(Vector2D position, Vector2D direction, Vector2D plane);
 
 	Uint32 GetPixelColour(LevelTexture* levelTexture, int pixelX, int pixelY);
 	void CopyPixel(SDL_Surface* buffer, LevelTexture* levelTexture, Uint32 colour, int xPos, int yPos);
@@ -43,12 +43,6 @@ private:
 	// Screen buffers.
 	SDL_Surface* m_backBuffer = nullptr;
 	SDL_Texture* m_frontBuffer = nullptr;
-
-	// Level Variables
-	float m_dirX = -1, m_dirY = 0; // Initial direction vector.
-	float m_planeX = 0, m_planeY = 0.66; // The 2d raycaster version of camera plane.
-	float m_moveSpeed = 2.0f;
-	float m_rotSpeed = 1.0f;
 
 	bool m_floorIsCheckered = true;
 

@@ -21,6 +21,7 @@ protected:
 	float m_collisionBoxWidth = 0.0f;
 	float m_collisionBoxHeight = 0.0f;
 
+
 public:
 	GameObject(SDL_Renderer* renderer, Vector2D startPosition);
 	~GameObject();
