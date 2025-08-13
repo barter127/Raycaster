@@ -40,6 +40,8 @@ public:
 
 	inline void* GetPixelData() { return m_surface->pixels; }
 
+	inline SDL_Surface* GetSurface() { return m_surface; }
+
 	// \returns Surfaces width.
 	inline int GetWidth() { return m_width; }
 

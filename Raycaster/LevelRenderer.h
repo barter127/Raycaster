@@ -34,6 +34,9 @@ private:
 	 */
 	void RenderCeilRoof();
 
+	Uint32 GetPixelColour(LevelTexture* levelTexture, int pixelX, int pixelY);
+	void CopyPixel(SDL_Surface* buffer, LevelTexture* levelTexture, Uint32 colour, int xPos, int yPos);
+
 	SDL_Renderer* m_renderer;
 
 	// Screen buffers.

@@ -27,7 +27,7 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer)
     water->LoadFromFile("Assets/Water_64x64.png");
 
     LevelTexture* lava = new LevelTexture(m_renderer);
-    lava->LoadFromFile("Assets/Magma_Floor_64x64.png");
+    lava->LoadFromFile("Assets/brick-wall.png");
 
     LevelTexture* moss = new LevelTexture(m_renderer);
     moss->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
@@ -36,10 +36,7 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer)
     earth->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
 
     LevelTexture* metal = new LevelTexture(m_renderer);
-    metal->LoadFromFile("Assets/Metal_Floor_64x64.png");
-
-    LevelTexture* road = new LevelTexture(m_renderer);
-    road->LoadFromFile("Assets/Rocky_Road_64x64.png");
+    metal->LoadFromFile("Assets/trak2_wall1b.tga.preview.jpg");
 
     m_levelTextureArray[0] = water;
     m_levelTextureArray[1] = lava;
@@ -235,14 +232,12 @@ void LevelRenderer::RenderWalls()
             int texY = (int)texPos & (texHeight - 1);
             texPos += step;
 
-            int* pixelData = (int*)m_levelTextureArray[texNum]->GetPixelData();
-            colour = pixelData[texHeight * texY + texX];
+            colour = GetPixelColour(m_levelTextureArray[texNum], 1000, texY);
 
             // Make colour darker for y-sides.
-            if (side == 1) colour = colour / 2;
+            if (side == 1) colour = (colour & 0xfefefefe) >> 1; // Later break colour down to RGBA and allow control of components.
 
-            // Copy buffer into locked texture memory.
-            std::memcpy((int*)m_backBuffer->pixels + y * SCREEN_WIDTH + x, &colour, sizeof(colour));
+            CopyPixel(m_backBuffer, m_levelTextureArray[texNum], colour, x, y);
         }
     }
 }
@@ -310,5 +305,64 @@ void LevelRenderer::RenderCeilRoof()
             colour = m_ceilPixelData[texWidth * ty + tx];
             std::memcpy((int*)m_backBuffer->pixels + (SCREEN_HEIGHT - y - 1) * SCREEN_WIDTH + x, &colour, sizeof(colour));
         }
+    }
+}
+
+Uint32 LevelRenderer::GetPixelColour(LevelTexture* levelTexture, int pixelX, int pixelY)
+{
+    SDL_Surface* surface = levelTexture->GetSurface();
+    int bpp = surface->format->BytesPerPixel;
+    Uint8* pixelPtr = (Uint8*)surface->pixels + pixelX * surface->pitch + pixelY * bpp;
+    Uint32 pixelColour = 0;
+
+    switch (bpp) {
+    case 1:
+        pixelColour = *pixelPtr;
+        break;
+    case 2:
+        pixelColour = *(Uint16*)pixelPtr;
+        break;
+    case 3:
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            pixelColour = pixelPtr[0] << 16 | pixelPtr[1] << 8 | pixelPtr[2];
+        else
+            pixelColour = pixelPtr[0] | pixelPtr[1] << 8 | pixelPtr[2] << 16;
+        break;
+    case 4:
+        pixelColour = *(Uint32*)pixelPtr;
+        break;
+    }
+
+    return pixelColour;
+}
+
+void LevelRenderer::CopyPixel(SDL_Surface* buffer, LevelTexture* levelTexture, Uint32 colour,int xPos, int yPos)
+{
+    // Copy buffer into locked texture memory.
+    Uint8* dstPixel = (Uint8*)buffer->pixels + yPos * buffer->pitch + xPos * buffer->format->BytesPerPixel;
+    switch (levelTexture->GetSurface()->format->BytesPerPixel) {
+    case 1:
+        *dstPixel = (Uint8)colour;
+        break;
+    case 2:
+        *(Uint16*)dstPixel = (Uint16)colour;
+        break;
+    case 3:
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+            dstPixel[0] = (colour >> 16) & 0xFF;
+            dstPixel[1] = (colour >> 8) & 0xFF;
+            dstPixel[2] = colour & 0xFF;
+            dstPixel[3] = 0xFF;
+        }
+        else {
+            dstPixel[0] = colour & 0xFF;
+            dstPixel[1] = (colour >> 8) & 0xFF;
+            dstPixel[2] = (colour >> 16) & 0xFF;
+            dstPixel[3] = 0xFF;
+        }
+        break;
+    case 4:
+        *(Uint32*)dstPixel = colour;
+        break;
     }
 }
