@@ -3,6 +3,9 @@
 #ifndef _COLLISIONS_H
 #define _COLLISIONS_H
 
+#define BLOCK_WIDTH 1.01
+#define BLOCK_HEIGHT 1.01
+
 class GameObject;
 class Vector2D;
 
@@ -30,7 +33,7 @@ public:
 	* 
 	* GameObjects can pass through one another
 	* 
-	* \param Two GameObjects for collision check.
+	* \param Two BoxColliders for collision check.
 	* 
 	* \returns true on overlap.
 	*/
@@ -39,9 +42,9 @@ public:
 	/*
 	* \brief Detect collision between two squares GameObjects.
 	*
-	* GameObjects cannot pass through one another and performs a collision response by changing the position of GameObject a
+	* Detects BoxCollider overlap and performs a collision response by changing the position of a box colliders "owner" GameObject.
 	*
-	* \param Two GameObjects for collision check.
+	* \param Two BoxColliders for collision check.
 	*
 	* \returns true on overlap.
 	*/

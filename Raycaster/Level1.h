@@ -19,6 +19,8 @@ public:
 	void Render();
 
 private:
+	void CollisionLoop();
+
 	LevelRenderer* m_levelRender;
 	Player* m_player;
 };
