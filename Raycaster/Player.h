@@ -4,6 +4,7 @@
 #define _PLAYER_H
 
 #include "GameObject.h"
+#include "Collisions.h"
 
 class Player : public GameObject
 { 
@@ -20,6 +21,8 @@ public:
 
 	Vector2D m_direction = Vector2D(-1, 0);
 	Vector2D m_plane = Vector2D(0, 0.66f); // The 2d raycaster version of camera plane.
+
+	BoxCollider m_collider;
 };
 
 #endif

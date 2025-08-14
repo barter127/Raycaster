@@ -2,6 +2,7 @@
 
 #ifndef _VECTOR2D_H
 #define _VECTOR2D_H
+
 class Vector2D
 {
 public:

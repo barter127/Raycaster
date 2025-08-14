@@ -6,6 +6,19 @@
 class GameObject;
 class Vector2D;
 
+struct BoxCollider
+{
+	bool isTrigger = false;
+
+	GameObject* owner = nullptr;
+
+	float x = 0;
+	float y = 0;
+
+	float width = 0;
+	float height = 0;
+};
+
 static class Collisions
 {
 public:
@@ -21,7 +34,7 @@ public:
 	* 
 	* \returns true on overlap.
 	*/
-	bool BoxTrigger(GameObject* a, GameObject* b);
+	static bool BoxTrigger(BoxCollider a, BoxCollider b);
 
 	/*
 	* \brief Detect collision between two squares GameObjects.
@@ -32,7 +45,7 @@ public:
 	*
 	* \returns true on overlap.
 	*/
-	bool BoxHard(GameObject* a, GameObject* b);
+	static bool BoxHard(BoxCollider a, BoxCollider b);
 };
 #endif // _COLLISIONS_H
 

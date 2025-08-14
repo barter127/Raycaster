@@ -14,8 +14,8 @@ public:
 	Screen(SDL_Renderer* renderer);
 	~Screen();
 
-	virtual void Render();
-	virtual void Update(float deltaTime, SDL_Event e);
+	virtual void Render() = 0;
+	virtual void Update(float deltaTime, SDL_Event e) = 0;
 };
 #endif // _GAMESCREEN_H
 

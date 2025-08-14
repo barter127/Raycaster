@@ -133,6 +133,7 @@
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TempMap.h" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Vector2D.cpp" />
   </ItemGroup>

@@ -6,6 +6,8 @@ Player::~Player() {}
 
 void Player::Update(float deltaTime, SDL_Event event)
 {
+    m_collider = { true, this, m_position.x, m_position.y, 1, 1 };
+
     switch (event.type)
     {
         case SDL_KEYDOWN:
@@ -14,14 +16,14 @@ void Player::Update(float deltaTime, SDL_Event event)
 
                 case SDLK_UP:
                 {
-                    m_position.x -= m_direction.x * m_movementSpeed * deltaTime;
+                    m_position += m_direction * m_movementSpeed * deltaTime;
                     break;
                 }
 
                 // Move backwards.
                 case SDLK_DOWN:
                 {
-                    m_position.x += m_direction.x * m_movementSpeed * deltaTime;
+                    m_position -= m_direction * m_movementSpeed * deltaTime;
                     break;
                 }
 
@@ -41,7 +43,7 @@ void Player::Update(float deltaTime, SDL_Event event)
                     m_plane.x = m_plane.x * rotationCos - m_plane.y * rotationSin;
                     m_plane.y = oldPlaneX * rotationSin + m_plane.y * rotationCos;
 
-                    m_position.y += m_plane.y * m_movementSpeed * deltaTime;
+                    m_position.y += m_direction.y * m_movementSpeed * deltaTime;
                     break;
                 }
 
@@ -62,7 +64,7 @@ void Player::Update(float deltaTime, SDL_Event event)
                     m_plane.y = oldPlaneX * rotationSin + m_plane.y * rotationCos;
 
                     //both camera direction and camera plane must be rotated
-                    m_position.y -= m_plane.y * m_movementSpeed * deltaTime;
+                    m_position.y -= m_direction.y * m_movementSpeed * deltaTime;
                     break;
                 }
             }
