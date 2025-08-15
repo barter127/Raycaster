@@ -7,6 +7,7 @@
 #include "LevelTexture.h"
 #include "Vector2D.h"
 #include "TempMap.h"
+#include "LevelFileSystem.h"
 
 
 LevelRenderer::LevelRenderer(SDL_Renderer* renderer) 

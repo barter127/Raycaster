@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Collisions.cpp" />
+    <ClCompile Include="LevelFileSystem.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Level1.cpp" />
     <ClCompile Include="LevelRenderer.cpp" />
@@ -142,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collisions.h" />
+    <ClInclude Include="LevelFileSystem.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Level1.h" />
     <ClInclude Include="LevelRenderer.h" />

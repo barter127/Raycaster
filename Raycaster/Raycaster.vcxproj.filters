@@ -51,6 +51,9 @@
     <ClCompile Include="TempMap.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="LevelFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelFileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

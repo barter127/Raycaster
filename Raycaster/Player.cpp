@@ -44,8 +44,6 @@ void Player::Movement(float deltaTime)
         float oldPlaneX = m_plane.x;
         m_plane.x = m_plane.x * rotationCos - m_plane.y * rotationSin;
         m_plane.y = oldPlaneX * rotationSin + m_plane.y * rotationCos;
-
-        m_position += m_direction * m_movementSpeed * deltaTime;
     }
 
     if (m_leftDown)
@@ -62,9 +60,6 @@ void Player::Movement(float deltaTime)
         float oldPlaneX = m_plane.x;
         m_plane.x = m_plane.x * rotationCos - m_plane.y * rotationSin;
         m_plane.y = oldPlaneX * rotationSin + m_plane.y * rotationCos;
-
-        //both camera direction and camera plane must be rotated
-        m_position -= m_direction * m_movementSpeed * deltaTime;
     }
 }
 

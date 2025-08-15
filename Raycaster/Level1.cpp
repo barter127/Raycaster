@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "Vector2D.h"
 #include "Collisions.h"
+#include "LevelFileSystem.h"
 #include "TempMap.h"
 
 std::vector<BoxCollider> levelColliders;
@@ -41,6 +42,9 @@ Level1::Level1(SDL_Renderer* renderer)
 {
     m_levelRender = new LevelRenderer(m_renderer);
     m_player = new Player(m_renderer, Vector2D(22,12) );
+
+    // LevelFileSystem::CreateFile("Test");
+    LevelFileSystem::ReadFile("Test");
 
     CreateMapColliders();
 }
