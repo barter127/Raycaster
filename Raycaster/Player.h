@@ -12,9 +12,15 @@ class Player : public GameObject
 { 
 private:
 	float m_movementSpeed = 5;
-	float m_rotationSpeed = 0.5f;
+	float m_rotationSpeed = 0.1f;
 
-	void Input(float deltaTime, SDL_Event event);
+	bool m_forwardDown = false;
+	bool m_backwardsDown = false;
+	bool m_rightDown = false;
+	bool m_leftDown = false;
+
+	void Movement(float deltaTime);
+	void Input(SDL_Event event);
 
 public:
 	Player(SDL_Renderer* renderer, Vector2D startPosition);

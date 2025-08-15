@@ -57,9 +57,11 @@ Level1::~Level1()
 
 void Level1::Update(float deltaTime, SDL_Event event)
 {
+    CollisionLoop();
     m_player->Update(deltaTime, event);
 
-    CollisionLoop();
+
+    std::cout << m_player->m_position.x << " " << m_player->m_position.y << std::endl;
 }
 
 void Level1::Render()
