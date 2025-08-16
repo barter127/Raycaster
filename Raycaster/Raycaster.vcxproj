@@ -70,6 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)External Libraries/imgui/;$(SolutionDir)External Libraries/imgui/backends</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -103,10 +106,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)External Libraries/imgui/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,6 +129,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\External Libraries\imgui\backend\imgui_impl_sdl2.cpp" />
+    <ClCompile Include="..\External Libraries\imgui\backend\imgui_impl_sdlrenderer2.cpp" />
+    <ClCompile Include="..\External Libraries\imgui\imgui.cpp" />
+    <ClCompile Include="..\External Libraries\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\External Libraries\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\External Libraries\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\External Libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Collisions.cpp" />
     <ClCompile Include="LevelFileSystem.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -142,6 +154,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\External Libraries\imgui\backend\imgui_impl_sdl2.h" />
+    <ClInclude Include="..\External Libraries\imgui\backend\imgui_impl_sdlrenderer2.h" />
+    <ClInclude Include="..\External Libraries\imgui\imconfig.h" />
+    <ClInclude Include="..\External Libraries\imgui\imgui.h" />
+    <ClInclude Include="..\External Libraries\imgui\imgui_internal.h" />
+    <ClInclude Include="..\External Libraries\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\External Libraries\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\External Libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="Collisions.h" />
     <ClInclude Include="LevelFileSystem.h" />
     <ClInclude Include="GameObject.h" />
