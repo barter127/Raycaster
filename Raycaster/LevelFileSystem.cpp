@@ -6,10 +6,16 @@
 
 #include "TempMap.h"
 
+void ReadWallData(std::ifstream* file, int levelWidth, int levelHeight);
+void ReadFloorData(std::ifstream* file, FloorData floorData);
+void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight);
+
 #define DEFAULT_MAP_WIDTH 24
 #define DEFAULT_MAP_HEIGHT 24
 
 std::vector<std::vector<int>>worldMap;
+FloorData floorData;
+FloorData ceilingData;
 
 void LevelFileSystem::CreateFile(std::string fileName)
 {
@@ -27,7 +33,7 @@ void LevelFileSystem::CreateFile(std::string fileName)
 
 void LevelFileSystem::ReadFile(std::string fileName)
 {
-    std::ifstream file("Levels/" + fileName + g_fileType);  // Consider renaming the file if not JSON
+    std::ifstream file("Levels/" + fileName + g_fileType);
 
     if (!file)
     {
@@ -46,48 +52,85 @@ void LevelFileSystem::ReadFile(std::string fileName)
     {
         if (line == "Walls:")
         {
-            for (int y = 0; y < levelHeight; ++y)
-            {
-                std::string wallLine;
-                if (!std::getline(file, wallLine)) {
-                    std::cerr << "Failed to read wall line at row " << y << "\n";
-                    return;
-                }
-
-                if (wallLine.length() < levelWidth) {
-                    std::cerr << "Wall line " << y << " is too short: " << wallLine << "\n";
-                    return;
-                }
-
-                for (int x = 0; x < levelWidth; ++x)
-                {
-                    if (!isdigit(wallLine[x])) {
-                        std::cerr << "Invalid wall data at (" << x << ", " << y << "): " << wallLine[x] << "\n";
-                        return;
-                    }
-
-                    int wallData = wallLine[x] - '0'; // convert char to int
-                    worldMap[x][y] = wallData;
-                    std::cout << x << "x" << y << " " << wallData << std::endl;
-                }
-            }
+            ReadWallData(&file, levelWidth, levelHeight);
         }
 
         else if (line == "Floor:")
         {
-
+            ReadFloorData(&file, floorData);
         }
-
         else if (line == "Ceiling:")
         {
-
+            ReadFloorData(&file, ceilingData);
         }
 
         else if (line == "Objects:")
         {
-
+            ReadObjectData(&file, levelWidth, levelHeight);
         }
     }
 
     file.close();
+}
+
+void ReadWallData(std::ifstream* file, int levelWidth, int levelHeight)
+{
+    for (int y = 0; y < levelHeight; ++y)
+    {
+        std::string wallLine;
+        if (!std::getline(*file, wallLine)) {
+            std::cerr << "Failed to read wall line at row " << y << "\n";
+            return;
+        }
+
+        if (wallLine.length() < levelWidth) {
+            std::cerr << "Wall line " << y << " is too short: " << wallLine << "\n";
+            return;
+        }
+
+        for (int x = 0; x < levelWidth; ++x)
+        {
+            if (!isdigit(wallLine[x])) {
+                std::cerr << "Invalid wall data at (" << x << ", " << y << "): " << wallLine[x] << "\n";
+                return;
+            }
+
+            int wallData = wallLine[x] - '0'; // convert char to int
+            worldMap[x][y] = wallData;
+            std::cout << x << "x" << y << " " << wallData << std::endl;
+        }
+    }
+}
+
+void ReadFloorData(std::ifstream* file, FloorData floorData)
+{
+    std::string line;
+
+    std::getline(*file, line);
+
+    if (line == "FloorCheckered:")
+    {
+        std::getline(*file, line);
+        floorData.isCheckered = std::stoi(line);
+
+        // If the floor is checkered it will always have multiplier values.
+        std::getline(*file, line);
+        if (line == "tex1Multiplier:")
+        {
+            std::getline(*file, line);
+            floorData.multiplier1 = std::stoi(line);
+        }
+
+        std::getline(*file, line);
+        if (line == "tex2Multiplier:")
+        {
+            std::getline(*file, line);
+            floorData.multiplier2 = std::stoi(line);
+        }
+    }
+}
+
+void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight)
+{
+
 }

@@ -6,11 +6,18 @@
 #include <string>
 #include <vector>
 
+struct FloorData {
+    bool isCheckered;
+    int multiplier1;
+    int multiplier2;
+};
+
 // Just in case I want to store 
 static std::string g_fileType = ".hlvl";
 
 extern std::vector<std::vector<int>>worldMap;
-
+extern FloorData floorData;
+extern FloorData ceilingData;
 
 namespace LevelFileSystem
 {
@@ -18,5 +25,7 @@ namespace LevelFileSystem
 
 	void ReadFile(std::string fileName);
 };
+
+
 
 #endif // !_FILE_MAPPING_H

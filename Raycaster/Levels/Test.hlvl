@@ -28,6 +28,12 @@ Walls:
 Objects:
 
 Floor:
+FloorCheckered:
+1
+tex1Multiplier:
+2
+tex2Multipler:
+1
 
 Ceiling:
 
