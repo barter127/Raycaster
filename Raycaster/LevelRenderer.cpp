@@ -7,7 +7,7 @@
 #include "LevelTexture.h"
 #include "Vector2D.h"
 
-LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap map) 
+LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map) 
     : m_renderer(renderer)
 {
     m_wallTexture = new LevelTexture(m_renderer);
@@ -68,8 +68,11 @@ void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane
     SDL_LockSurface(m_backBuffer);
     SDL_FillRect(m_backBuffer, NULL, 0xe0afba);
 
-    RenderCeilRoof(position, direction, plane);
-    RenderWalls(position, direction, plane);
+    if (m_map->GetWidth() && m_map->GetHeight())
+    {
+        RenderCeilRoof(position, direction, plane);
+        RenderWalls(position, direction, plane);
+    }
 
     // Unlock buffer.
     SDL_UnlockSurface(m_backBuffer);
@@ -84,7 +87,7 @@ void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane
 
 void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D plane)
 {
-    LevelArray lArray = m_map.GetLevelArray();
+    LevelArray lArray = m_map->GetLevelArray();
 
     for (int x = 0; x < SCREEN_WIDTH; x++)
     {

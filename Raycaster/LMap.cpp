@@ -37,15 +37,18 @@ void LMap::CreateFile(std::string fileName)
     if (!outfile.good()) { std::cout << "[LevelFileSystem] Failed to write to file: " << fileName; }
 }
 
-void LMap::ReadFile(LMap& map, std::string fileName)
+void LMap::ReadFile(LMap& map, std::string path)
 {
-    std::ifstream file("Levels/" + fileName + g_fileType);
+    std::ifstream file(path);
 
     if (!file)
     {
-        std::cout << "Failed to open file at " << "Levels/" + fileName + g_fileType << std::endl;
+        std::cout << "[LMap] Failed to open file at " << path << std::endl;
         return;
     }
+
+    map.m_width = 0;
+    map.m_height = 0;
 
     std::string line;
 

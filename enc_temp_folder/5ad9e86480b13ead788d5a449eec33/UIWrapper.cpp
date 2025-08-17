@@ -121,7 +121,7 @@ void UIWrapper::Render()
 		}
 		else
 		{
-			std::cerr << "[UIWrapper] Attempted to write to null map data" << std::endl;
+			std::cerr << "[UIWrapper] Attempted to write to nullptr map data" << std::endl;
 		}
 
 		std::cout << "[UIWrapper] Selected filename " << fileDialog.GetSelected().string() << std::endl;
