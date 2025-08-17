@@ -11,6 +11,7 @@
 #include "Collisions.h"
 #include "LevelFileSystem.h"
 #include "TempMap.h"
+#include "UIWrapper.h"
 
 std::vector<BoxCollider> levelColliders;
 

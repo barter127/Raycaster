@@ -5,6 +5,7 @@
 
 #include "ScreenManager.h"
 #include "WindowConstants.h"
+#include "UIWrapper.h"
 
 bool InitSDL();
 bool CloseSDL();
@@ -21,22 +22,23 @@ const int FPS = 60;
 const int SKIP_TICKS = 1000 / FPS;
 Uint32 g_nextGameTick;
 
-ScreenManager* g_ScreenManager = nullptr;
-
+ScreenManager* g_screenManager = nullptr;
+UIWrapper* g_ui;
 
 int main(int argc, char* argv[])
 {
 	bool quit = false;
 
-
 	if (InitSDL())
 	{
-		g_ScreenManager = new ScreenManager(g_renderer, LEVEL1_SCREEN);
+		g_screenManager = new ScreenManager(g_renderer, LEVEL1_SCREEN);
 
 		// Set old time.
 		g_oldTime = SDL_GetTicks();
 
 		std::cout << "[Main] !!! Update & Render Start !!!" << std::endl;
+
+		g_ui = new UIWrapper(g_window, g_renderer);
 
 		while (!quit)
 		{
@@ -54,13 +56,16 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	delete g_ui;
+	g_ui = nullptr;
+
 	CloseSDL();
 
 	// Release GameScreenManager
-	delete g_ScreenManager;
-	g_ScreenManager = nullptr;
+	delete g_screenManager;
+	g_screenManager = nullptr;
 
-	return 1;
+	return 0;
 }
 
 bool InitSDL()
@@ -132,10 +137,10 @@ bool CloseSDL()
 	return true;
 }
 
+	SDL_Event event;
 bool Update()
 {
 	Uint32 newTime = SDL_GetTicks();
-	SDL_Event event;
 
 	// Get the current event from the event queue.
 	SDL_PollEvent(&event);
@@ -151,7 +156,8 @@ bool Update()
 
 	// Call Update for current scene
 	float deltaTime = (float)(newTime - g_oldTime) / 1000.0f;
-	g_ScreenManager->Update(deltaTime, event);
+	g_screenManager->Update(deltaTime, event);
+	g_ui->Update(deltaTime, event);
 
 	g_oldTime = newTime;
 
@@ -164,7 +170,8 @@ void Render()
 	SDL_SetRenderDrawColor(g_renderer, 221, 160, 221, 255);
 	SDL_RenderClear(g_renderer);
 
-	g_ScreenManager->Render();
+	g_screenManager->Render();
+	g_ui->Render();
 
 	// Swap Buffer.
 	SDL_RenderPresent(g_renderer);

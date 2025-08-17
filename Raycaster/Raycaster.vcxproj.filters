@@ -81,6 +81,9 @@
     <ClCompile Include="..\External Libraries\imgui\backend\imgui_impl_sdlrenderer2.cpp">
       <Filter>Resource Files\imgui\backend</Filter>
     </ClCompile>
+    <ClCompile Include="UIWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\backend\imgui_impl_sdlrenderer2.h">
       <Filter>Resource Files\imgui\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="UIWrapper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

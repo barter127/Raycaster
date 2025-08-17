@@ -29,6 +29,8 @@ void LevelFileSystem::CreateFile(std::string fileName)
 	outfile << "Ceiling:" << std::endl << std::endl;
 
 	outfile.close();
+
+    if (!outfile.good()) { std::cout << "[LevelFileSystem] Failed to write to file: " << fileName; }
 }
 
 void LevelFileSystem::ReadFile(std::string fileName)
