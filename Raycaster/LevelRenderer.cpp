@@ -6,11 +6,8 @@
 #include "WindowConstants.h"
 #include "LevelTexture.h"
 #include "Vector2D.h"
-#include "TempMap.h"
-#include "LevelFileSystem.h"
 
-
-LevelRenderer::LevelRenderer(SDL_Renderer* renderer) 
+LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap map) 
     : m_renderer(renderer)
 {
     m_wallTexture = new LevelTexture(m_renderer);
@@ -44,6 +41,8 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer)
     m_levelTextureArray[4] = metal;
 
     m_backBuffer = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 2, SDL_PIXELFORMAT_RGBA32);
+
+    m_map = map;
 }
 
 LevelRenderer::~LevelRenderer()
@@ -76,7 +75,7 @@ void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane
     SDL_UnlockSurface(m_backBuffer);
     m_frontBuffer = SDL_CreateTextureFromSurface(m_renderer, m_backBuffer);
 
-    // Render to screen
+    // Render to screen.
     SDL_RenderCopy(m_renderer, m_frontBuffer, NULL, NULL);
 
     // Destroy Texture for next render pass.
@@ -85,6 +84,8 @@ void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane
 
 void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D plane)
 {
+    LevelArray lArray = m_map.GetLevelArray();
+
     for (int x = 0; x < SCREEN_WIDTH; x++)
     {
         // Calculate ray position and direction.
@@ -151,7 +152,7 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
                 side = 1;
             }
             // Check if ray has hit a wall.
-            if (worldMap[mapX][mapY] > 0) hit = 1;
+            if (lArray[mapX][mapY] > 0) hit = 1;
         }
 
         // Calculate distance projected on camera direction.
@@ -171,7 +172,7 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
         Uint32 colour = 0;
 
         // Texturing calculations.
-        int texNum = worldMap[mapX][mapY] - 1;
+        int texNum = lArray[mapX][mapY] - 1;
 
         int texWidth = m_levelTextureArray[texNum]->GetWidth();
         int texHeight = m_levelTextureArray[texNum]->GetHeight();

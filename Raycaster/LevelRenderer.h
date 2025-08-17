@@ -4,6 +4,7 @@
 #define _LEVEL_RENDERER_H
 
 #include "SDL.h"
+#include "LMap.h"
 
 class LevelTexture;
 class Vector2D;
@@ -11,7 +12,7 @@ class Vector2D;
 class LevelRenderer
 {
 public:
-	LevelRenderer(SDL_Renderer* renderer);
+	LevelRenderer(SDL_Renderer* renderer, LMap map);
 	~LevelRenderer();
 
 	void Render(Vector2D position, Vector2D direction, Vector2D plane);
@@ -52,6 +53,8 @@ private:
 	LevelTexture* m_ceilingTexture = nullptr; // Could expand to an array of surfaces.
 
 	LevelTexture* m_levelTextureArray[5];
+
+	LMap m_map;
 
 	int floorTex1Multiplier = 2;
 	int floorTex2Multiplier = 1;

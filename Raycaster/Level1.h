@@ -5,6 +5,7 @@
 
 #include "SDL.h"
 #include "Screen.h"
+#include "LMap.h"
 
 class Player;
 class LevelRenderer;
@@ -19,10 +20,12 @@ public:
 	void Render();
 
 private:
+	void CreateMapColliders();
 	void CollisionLoop();
 
 	LevelRenderer* m_levelRender;
 	Player* m_player;
+	LMap m_map;
 };
 
 #endif

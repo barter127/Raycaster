@@ -6,22 +6,23 @@
 
 #include "WindowConstants.h"
 #include "LevelRenderer.h"
+
 #include "Player.h"
 #include "Vector2D.h"
 #include "Collisions.h"
-#include "LevelFileSystem.h"
-#include "TempMap.h"
 #include "UIWrapper.h"
 
 std::vector<BoxCollider> levelColliders;
 
-void CreateMapColliders()
+void Level1::CreateMapColliders()
 {
-    for (int x = 0; x < MAP_WIDTH; x++)
+    LevelArray lArray = m_map.GetLevelArray();
+
+    for (int x = 0; x < m_map.GetWidth(); x++)
     {
-        for (int y = 0; y < MAP_HEIGHT; y++)
+        for (int y = 0; y < m_map.GetHeight(); y++)
         {
-            if (worldMap[x][y] > 0)
+            if (lArray[x][y] > 0)
             {
                 BoxCollider levelCollider = {true, nullptr, x, y, BLOCK_WIDTH, BLOCK_HEIGHT};
                 levelColliders.push_back(levelCollider);
@@ -41,11 +42,13 @@ void Level1::CollisionLoop()
 Level1::Level1(SDL_Renderer* renderer) 
     : Screen(renderer)
 {
-    m_levelRender = new LevelRenderer(m_renderer);
+    LMap::ReadFile(m_map, "Test");
+
+    m_levelRender = new LevelRenderer(m_renderer, m_map);
     m_player = new Player(m_renderer, Vector2D(22,12) );
 
     // LevelFileSystem::CreateFile("Test");
-    LevelFileSystem::ReadFile("Test");
+    //LevelFileSystem::ReadFile("Test");
 
     CreateMapColliders();
 }
@@ -64,9 +67,6 @@ void Level1::Update(float deltaTime, SDL_Event event)
 {
     CollisionLoop();
     m_player->Update(deltaTime, event);
-
-
-    std::cout << m_player->m_position.x << " " << m_player->m_position.y << std::endl;
 }
 
 void Level1::Render()

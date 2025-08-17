@@ -7,7 +7,7 @@ using namespace ImGui;
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 
-#include "LevelFileSystem.h"
+#include "LMap.h"
 
 
 ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -74,7 +74,7 @@ void NewHLVLPanel()
 
 	if (Button("Create")) 
 	{
-		LevelFileSystem::CreateFile(fileName); 
+		//LevelFileSystem::CreateFile(fileName); 
 
 		std::cout << "[LevelFileSystem] Created new hlvl. " << fileName << ".hlvl";
 		displayNewPanel = false;
@@ -94,8 +94,14 @@ void UIWrapper::Render()
 
 
 	if (Button("New")) { displayNewPanel = !displayNewPanel; }
-
 	if (displayNewPanel) { NewHLVLPanel(); }
+
+	SameLine();
+	if (Button("Save")) {}
+
+	SameLine();
+	if (Button("Load")) {}
+
 
 	End();
 

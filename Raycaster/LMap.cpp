@@ -1,39 +1,43 @@
-#include "LevelFileSystem.h"
+#include "LMap.h"
 
 #include <iostream>
-#include <fstream>  
-#include <string>  
+#include <fstream>   
 
-#include "TempMap.h"
+std::string LMap::g_fileType = ".hlvl";
 
-void ReadWallData(std::ifstream* file, int levelWidth, int levelHeight);
-void ReadFloorData(std::ifstream* file, FloorData floorData);
+LMap::LMap() 
+    : m_width(0),
+      m_height(0)
+{}
+
+LMap::LMap(LMap& other) 
+    : m_lvlArray(other.m_lvlArray)
+{}
+
+LMap::~LMap() {}
+
+// Helper funcs.
+void ReadWallData(std::ifstream* file, LevelArray& lArray, int levelWidth, int levelHeight);
+void ReadFloorData(std::ifstream* file, FloorData& floorData);
 void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight);
 
-#define DEFAULT_MAP_WIDTH 24
-#define DEFAULT_MAP_HEIGHT 24
-
-std::vector<std::vector<int>>worldMap;
-FloorData floorData;
-FloorData ceilingData;
-
-void LevelFileSystem::CreateFile(std::string fileName)
+void LMap::CreateFile(std::string fileName)
 {
-	std::ofstream outfile("Levels/" + fileName + g_fileType);
+    std::ofstream outfile("Levels/" + fileName + g_fileType);
 
-	// Create default data maps.
-	outfile << DEFAULT_MAP_WIDTH << " " << DEFAULT_MAP_HEIGHT << std::endl;
-	outfile << "Walls:" << std::endl << std::endl;
-	outfile << "Objects:" << std::endl << std::endl;
-	outfile << "Floor:" << std::endl << std::endl;
-	outfile << "Ceiling:" << std::endl << std::endl;
+    // Create default data maps.
+    outfile << DEFAULT_MAP_WIDTH << " " << DEFAULT_MAP_HEIGHT << std::endl;
+    outfile << "Walls:" << std::endl << std::endl;
+    outfile << "Objects:" << std::endl << std::endl;
+    outfile << "Floor:" << std::endl << std::endl;
+    outfile << "Ceiling:" << std::endl << std::endl;
 
-	outfile.close();
+    outfile.close();
 
     if (!outfile.good()) { std::cout << "[LevelFileSystem] Failed to write to file: " << fileName; }
 }
 
-void LevelFileSystem::ReadFile(std::string fileName)
+void LMap::ReadFile(LMap& map, std::string fileName)
 {
     std::ifstream file("Levels/" + fileName + g_fileType);
 
@@ -44,38 +48,36 @@ void LevelFileSystem::ReadFile(std::string fileName)
     }
 
     std::string line;
-    int levelWidth = 0;
-    int levelHeight = 0;
 
-    file >> levelWidth >> levelHeight;
-    worldMap.resize(levelWidth, std::vector<int>(levelHeight));
+    file >> map.m_width >> map.m_height;
+    map.m_lvlArray.resize(map.m_width, std::vector<int>(map.m_height));
 
     while (std::getline(file, line))
     {
         if (line == "Walls:")
         {
-            ReadWallData(&file, levelWidth, levelHeight);
+            ReadWallData(&file, map.m_lvlArray, map.m_width, map.m_height);
         }
 
         else if (line == "Floor:")
         {
-            ReadFloorData(&file, floorData);
+            ReadFloorData(&file, map.m_floorData);
         }
         else if (line == "Ceiling:")
         {
-            ReadFloorData(&file, ceilingData);
+            ReadFloorData(&file, map.m_ceilingData);
         }
 
         else if (line == "Objects:")
         {
-            ReadObjectData(&file, levelWidth, levelHeight);
+            ReadObjectData(&file, map.m_width, map.m_height);
         }
     }
 
     file.close();
 }
 
-void ReadWallData(std::ifstream* file, int levelWidth, int levelHeight)
+void ReadWallData(std::ifstream* file, LevelArray& lArray,  int levelWidth, int levelHeight)
 {
     for (int y = 0; y < levelHeight; ++y)
     {
@@ -98,13 +100,12 @@ void ReadWallData(std::ifstream* file, int levelWidth, int levelHeight)
             }
 
             int wallData = wallLine[x] - '0'; // convert char to int
-            worldMap[x][y] = wallData;
-            std::cout << x << "x" << y << " " << wallData << std::endl;
+            lArray[x][y] = wallData;
         }
     }
 }
 
-void ReadFloorData(std::ifstream* file, FloorData floorData)
+void ReadFloorData(std::ifstream* file, FloorData& floorData)
 {
     std::string line;
 

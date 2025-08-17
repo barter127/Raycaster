@@ -137,11 +137,11 @@
     <ClCompile Include="..\External Libraries\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\External Libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Collisions.cpp" />
-    <ClCompile Include="LevelFileSystem.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Level1.cpp" />
     <ClCompile Include="LevelRenderer.cpp" />
     <ClCompile Include="LevelTexture.cpp" />
+    <ClCompile Include="LMap.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
@@ -164,11 +164,11 @@
     <ClInclude Include="..\External Libraries\imgui\imstb_textedit.h" />
     <ClInclude Include="..\External Libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="Collisions.h" />
-    <ClInclude Include="LevelFileSystem.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Level1.h" />
     <ClInclude Include="LevelRenderer.h" />
     <ClInclude Include="LevelTexture.h" />
+    <ClInclude Include="LMap.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="ScreenManager.h" />
