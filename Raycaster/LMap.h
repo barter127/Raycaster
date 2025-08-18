@@ -38,11 +38,11 @@ public:
 	inline int GetWidth() { return m_width; }
 	inline int GetHeight() { return m_height; }
 
-	static void CreateFile(std::string fileName);
+	static std::string CreateFile(std::string fileName);
 
-	static void ReadFile(LMap& map, std::string fileName);
+	static bool ReadFile(LMap& map, std::string fileName);
 
-	static void SaveFile(const LMap& map, std::string fileName);
+	static bool SaveFile(const LMap& map, std::string fileName);
 
 
 private: // Read Only (Except From FileSystem).

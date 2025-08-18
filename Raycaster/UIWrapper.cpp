@@ -42,8 +42,6 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 	// Initialize ImGui for SDL and SDL_Renderer
 	ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer2_Init(renderer);
-
-	m_initialised = true;
 }
 
 UIWrapper::~UIWrapper()
@@ -66,15 +64,20 @@ void UIWrapper::Render()
 
 	Begin("Editor");
 
+	m_fileDialog.Display();
 
 	if (Button("New")) { m_displayNewPanel = !m_displayNewPanel; }
-	if (m_displayNewPanel) 
-	{ NewHLVLPanel(m_fileName); }
+	if (m_displayNewPanel) { NewHLVLPanel(m_fileName); }
 
 	SameLine();
 	if (Button("Save")) 
 	{
-		LMap::SaveFile(*m_map, "Levels/TestSave.hlvl");
+		bool success = LMap::SaveFile(*m_map, m_currentMapFile);
+
+		if (success)
+		{
+			m_saved = true;
+		}
 	}
 
 	SameLine();
@@ -83,21 +86,22 @@ void UIWrapper::Render()
 		m_fileDialog.Open();
 	}
 
-	m_fileDialog.Display();
-
 	if (m_fileDialog.HasSelected())
 	{
 		if (m_map != nullptr)
 		{
 			LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
+			m_currentMapFile = m_fileDialog.GetSelected().string();
 		}
 		else
 		{
-			std::cerr << "[UIWrapper] Attempted to write to null map data" << std::endl;
+			std::cerr << "[UIWrapper] Attempted to read a null LMap" << std::endl;
 		}
 
 		std::cout << "[UIWrapper] Selected filename " << m_fileDialog.GetSelected().string() << std::endl;
 		m_fileDialog.ClearSelected();
+
+		m_saved = true;
 	}
 
 	End();
@@ -114,15 +118,16 @@ void UIWrapper::NewHLVLPanel(char* fileName)
 {
 	Begin("New HLVL");
 
-	InputText(m_inputLabel.c_str(), fileName, MAX_FILE_NAME_LENGTH);
+	InputText("##label", fileName, MAX_FILE_NAME_LENGTH);
 	SameLine();
 	Text(".hlvl");
 
-	if (Button("Create"))
+	if (Button("Create") && !strcmp(fileName, " "))
 	{
-		LMap::CreateFile(fileName);
+		m_currentMapFile = LMap::CreateFile(fileName);
 
 		std::cout << "[UIWrapper] Created new hlvl: " << fileName << ".hlvl";
+
 		m_displayNewPanel = false;
 	}
 

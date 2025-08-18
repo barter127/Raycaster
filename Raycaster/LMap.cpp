@@ -21,7 +21,7 @@ void ReadWallData(std::ifstream* file, LevelArray& lArray, int levelWidth, int l
 void ReadFloorData(std::ifstream* file, FloorData& floorData);
 void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight);
 
-void LMap::CreateFile(std::string fileName)
+std::string LMap::CreateFile(std::string fileName)
 {
     std::ofstream outfile("Levels/" + fileName + g_fileType);
 
@@ -70,17 +70,24 @@ void LMap::CreateFile(std::string fileName)
 
     outfile.close();
 
-    if (!outfile.good()) { std::cout << "[LevelFileSystem] Failed to write to file: " << fileName; }
+    if (!outfile.good())
+    {
+        std::cout << "[LevelFileSystem] Failed to write to file: " << fileName;
+        return "Failed";
+    }
+
+    return "Levels/" + fileName + g_fileType;
 }
 
-void LMap::ReadFile(LMap& map, std::string path)
+bool LMap::ReadFile(LMap& map, std::string path)
 {
     std::ifstream file(path);
 
     if (!file)
     {
-        std::cout << "[LMap] Failed to open file at " << path << std::endl;
-        return;
+        std::cout << "[LMap] Failed to open file for reading: " << path << std::endl;
+        file.close();
+        return false;
     }
 
     std::string line;
@@ -114,9 +121,10 @@ void LMap::ReadFile(LMap& map, std::string path)
     }
 
     file.close();
+    return true;
 }
 
-void LMap::SaveFile(const LMap& map, std::string path)
+bool LMap::SaveFile(const LMap& map, std::string path)
 {
     std::ofstream outfile(path);
 
@@ -149,8 +157,15 @@ void LMap::SaveFile(const LMap& map, std::string path)
             outfile << "tex2Multiplier:" << std::endl << map.m_ceilingData.multiplier2 << std::endl;
         outfile << std::endl;
     }
+    else
+    {
+        std::cerr << "[LMap] Failed to open file during saving: path" << std::endl;
+        outfile.close();
+        return false;
+    }
 
     outfile.close();
+    return true;
 }
 
 void ReadWallData(std::ifstream* file, LevelArray& lArray,  int levelWidth, int levelHeight)
