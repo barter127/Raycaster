@@ -11,13 +11,11 @@
 class UIWrapper
 {
 public:
-	UIWrapper(SDL_Window* window, SDL_Renderer* renderer);
+	UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map);
 	~UIWrapper();
 
 	void Render();
 	void Update(float deltaTime,  SDL_Event event);
-
-	void LinkMapData(LMap* map);
 
 private:
 	bool m_initialised = false;

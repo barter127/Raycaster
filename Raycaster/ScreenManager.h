@@ -17,6 +17,7 @@ class ScreenManager
 {
 private:
 	static SDL_Renderer* m_renderer;
+	static SDL_Window* m_window;
 	static Screen* m_currentScreen;
 
 	static SCREEN m_currentScreenType;
@@ -27,7 +28,7 @@ private:
 	static ScreenManager* m_instance;
 
 public:
-	ScreenManager(SDL_Renderer* renderer, SCREEN startScreen);
+	ScreenManager(SDL_Window* window, SDL_Renderer* renderer, SCREEN startScreen);
 	~ScreenManager();
 
 	ScreenManager* Instance();

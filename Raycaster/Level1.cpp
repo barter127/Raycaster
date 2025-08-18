@@ -39,13 +39,15 @@ void Level1::CollisionLoop()
     }
 }
 
-Level1::Level1(SDL_Renderer* renderer) 
+Level1::Level1(SDL_Window* window, SDL_Renderer* renderer) 
     : Screen(renderer)
 {
     LMap::ReadFile(m_map, "Levels/Test.hlvl");
+    
+    m_ui = new UIWrapper(window, renderer, &m_map);
 
     m_levelRender = new LevelRenderer(m_renderer, &m_map);
-    m_player = new Player(m_renderer, Vector2D(22,12) );
+    m_player = new Player(m_renderer, Vector2D(10,10) );
 
     CreateMapColliders();
 }
@@ -57,6 +59,9 @@ Level1::~Level1()
 
     delete m_player;
     m_player = nullptr;
+
+    delete m_ui;
+    m_ui = nullptr;
 }
 
 
@@ -64,10 +69,12 @@ void Level1::Update(float deltaTime, SDL_Event event)
 {
     CollisionLoop();
     m_player->Update(deltaTime, event);
+    m_ui->Update(deltaTime, event);
 }
 
 void Level1::Render()
 {
     m_levelRender->Render(m_player->m_position, m_player->m_direction, m_player->m_plane);
     m_player->Render();
+    m_ui->Render();
 }

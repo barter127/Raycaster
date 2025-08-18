@@ -6,6 +6,7 @@
 #include <iostream>
 
 SDL_Renderer* ScreenManager::m_renderer = nullptr;
+SDL_Window* ScreenManager::m_window = nullptr;
 Screen* ScreenManager::m_currentScreen = nullptr;
 SCREEN ScreenManager::m_currentScreenType = NO_SCREEN;
 
@@ -22,9 +23,10 @@ void ScreenManager::DeleteCurrentScreen()
 	}
 }
 
-ScreenManager::ScreenManager(SDL_Renderer* renderer, SCREEN startScreen)
+ScreenManager::ScreenManager(SDL_Window* window, SDL_Renderer* renderer, SCREEN startScreen)
 {
 	m_renderer = renderer;
+	m_window = window;
 	m_instance = this;
 	m_currentScreen = nullptr;
 
@@ -77,7 +79,7 @@ void ScreenManager::ChangeScreen(SCREEN newScreen)
 	switch (newScreen)
 	{
 		case LEVEL1_SCREEN:
-			tempLevel1 = new Level1(m_renderer);
+			tempLevel1 = new Level1(m_window, m_renderer);
 			m_currentScreen = (Screen*)tempLevel1;
 			tempLevel1 = nullptr;
 

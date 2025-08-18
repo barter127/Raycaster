@@ -9,11 +9,12 @@
 
 class Player;
 class LevelRenderer;
+class UIWrapper;
 
 class Level1 : Screen
 {
 public:
-	Level1(SDL_Renderer* renderer);
+	Level1(SDL_Window* window, SDL_Renderer* renderer);
 	~Level1();
 
 	void Update(float deltaTime, SDL_Event event);
@@ -22,6 +23,8 @@ public:
 private:
 	void CreateMapColliders();
 	void CollisionLoop();
+
+	UIWrapper* m_ui;
 
 	LevelRenderer* m_levelRender;
 	Player* m_player;

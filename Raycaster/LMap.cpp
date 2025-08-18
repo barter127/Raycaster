@@ -47,10 +47,10 @@ void LMap::ReadFile(LMap& map, std::string path)
         return;
     }
 
+    std::string line;
+
     map.m_width = 0;
     map.m_height = 0;
-
-    std::string line;
 
     file >> map.m_width >> map.m_height;
     map.m_lvlArray.resize(map.m_width, std::vector<int>(map.m_height));

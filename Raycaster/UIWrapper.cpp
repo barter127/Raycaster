@@ -13,7 +13,7 @@ using namespace ImGui;
 
 ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer) : m_renderer(renderer)
+UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_renderer(renderer), m_map(map)
 {
 	IMGUI_CHECKVERSION();
 
@@ -135,9 +135,4 @@ void UIWrapper::Render()
 	SDL_SetRenderDrawColor(m_renderer, (Uint8)(s_clearColour.x * 255), (Uint8)(s_clearColour.y * 255), (Uint8)(s_clearColour.z * 255), (Uint8)(s_clearColour.w * 255));
 	ImGui_ImplSDLRenderer2_RenderDrawData(GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
-}
-
-void UIWrapper::LinkMapData(LMap* map)
-{
-	m_map = map;
 }
