@@ -27,10 +27,46 @@ void LMap::CreateFile(std::string fileName)
 
     // Create default data maps.
     outfile << DEFAULT_MAP_WIDTH << " " << DEFAULT_MAP_HEIGHT << std::endl;
-    outfile << "Walls:" << std::endl << std::endl;
+    outfile << "Walls:" << std::endl;
+    outfile << R"(111111111111111111111111
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+100000000000000000000001
+111111111111111111111111)";
+    outfile << std::endl << std::endl;
+
     outfile << "Objects:" << std::endl << std::endl;
-    outfile << "Floor:" << std::endl << std::endl;
-    outfile << "Ceiling:" << std::endl << std::endl;
+
+    outfile << "Floor:" << std::endl;
+        outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
+        outfile << "tex1Multiplier:" << std::endl << 0 << std::endl;
+        outfile << "tex2Multiplier:" << std::endl << 0 << std::endl;
+    outfile << std::endl;
+
+    outfile << "Ceiling:" << std::endl;
+        outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
+        outfile << "tex1Multiplier:" << std::endl << 0 << std::endl;
+        outfile << "tex2Multiplier:" << std::endl << 0 << std::endl;
+    outfile << std::endl;
 
     outfile.close();
 
@@ -78,6 +114,43 @@ void LMap::ReadFile(LMap& map, std::string path)
     }
 
     file.close();
+}
+
+void LMap::SaveFile(const LMap& map, std::string path)
+{
+    std::ofstream outfile(path);
+
+    if (outfile)
+    {
+        outfile << map.m_width << " " << map.m_height << std::endl;
+
+        outfile << "Walls:"  << std::endl;
+            for (int y = 0; y < map.m_height; y++)
+            {
+                for (int x = 0; x < map.m_width; x++)
+                {
+                    outfile << map.m_lvlArray[x][y];
+                }
+
+                outfile << std::endl;
+            }
+
+        outfile << "Objects:" << std::endl << std::endl;
+
+        outfile << "Floor:" << std::endl;
+            outfile << "FloorCheckered:" << std::endl << map.m_floorData.isCheckered << std::endl;
+            outfile << "tex1Multiplier:" << std::endl << map.m_floorData.multiplier1 << std::endl;
+            outfile << "tex2Multiplier:" << std::endl << map.m_floorData.multiplier2 << std::endl;
+        outfile << std::endl;
+
+        outfile << "Ceiling:" << std::endl;
+            outfile << "FloorCheckered:" << std::endl << map.m_ceilingData.isCheckered << std::endl;
+            outfile << "tex1Multiplier:" << std::endl << map.m_ceilingData.multiplier1 << std::endl;
+            outfile << "tex2Multiplier:" << std::endl << map.m_ceilingData.multiplier2 << std::endl;
+        outfile << std::endl;
+    }
+
+    outfile.close();
 }
 
 void ReadWallData(std::ifstream* file, LevelArray& lArray,  int levelWidth, int levelHeight)

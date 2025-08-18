@@ -42,7 +42,8 @@ public:
 
 	static void ReadFile(LMap& map, std::string fileName);
 
-	static void SaveFile(LMap map, std::string fileName);
+	static void SaveFile(const LMap& map, std::string fileName);
+
 
 private: // Read Only (Except From FileSystem).
 	static std::string g_fileType;

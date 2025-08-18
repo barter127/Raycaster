@@ -75,7 +75,7 @@ void NewHLVLPanel()
 
 	if (Button("Create")) 
 	{
-		//LevelFileSystem::CreateFile(fileName); 
+		LMap::CreateFile(fileName); 
 
 		std::cout << "[LevelFileSystem] Created new hlvl. " << fileName << ".hlvl";
 		displayNewPanel = false;
@@ -84,7 +84,7 @@ void NewHLVLPanel()
 	End();
 }
 
-		FileBrowser fileDialog;
+FileBrowser fileDialog;
 
 void UIWrapper::Render()
 {
@@ -100,14 +100,12 @@ void UIWrapper::Render()
 	SameLine();
 	if (Button("Save")) 
 	{
-		//Write current map data to file.
+		LMap::SaveFile(*m_map, "Levels/TestSave.hlvl");
 	}
 
 	SameLine();
 	if (Button("Load")) 
 	{
-		// Bring up prompt to select file.
-
 		fileDialog.Open();
 	}
 
