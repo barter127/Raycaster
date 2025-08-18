@@ -6,10 +6,8 @@
 using namespace ImGui;
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
-#include "imfilebrowser.h"
 
 #include "LMap.h"
-
 
 ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -60,32 +58,6 @@ void UIWrapper::Update(float deltaTime, SDL_Event event)
 	ImGui_ImplSDL2_ProcessEvent(&event);
 }
 
-#define MAX_FILE_NAME_LENGTH 25
-char inputLabel[] = "##label";
-char fileName[MAX_FILE_NAME_LENGTH];
-bool displayNewPanel = false;
-
-void NewHLVLPanel()
-{
-	Begin("New HLVL");
-
-	InputText(inputLabel, fileName, MAX_FILE_NAME_LENGTH);
-	SameLine();
-	Text(".hlvl");
-
-	if (Button("Create")) 
-	{
-		LMap::CreateFile(fileName); 
-
-		std::cout << "[LevelFileSystem] Created new hlvl. " << fileName << ".hlvl";
-		displayNewPanel = false;
-	}
-
-	End();
-}
-
-FileBrowser fileDialog;
-
 void UIWrapper::Render()
 {
 	ImGui_ImplSDLRenderer2_NewFrame();
@@ -94,8 +66,10 @@ void UIWrapper::Render()
 
 	Begin("Editor");
 
-	if (Button("New")) { displayNewPanel = !displayNewPanel; }
-	if (displayNewPanel) { NewHLVLPanel(); }
+
+	if (Button("New")) { m_displayNewPanel = !m_displayNewPanel; }
+	if (m_displayNewPanel) 
+	{ NewHLVLPanel(m_fileName); }
 
 	SameLine();
 	if (Button("Save")) 
@@ -106,24 +80,24 @@ void UIWrapper::Render()
 	SameLine();
 	if (Button("Load")) 
 	{
-		fileDialog.Open();
+		m_fileDialog.Open();
 	}
 
-	fileDialog.Display();
+	m_fileDialog.Display();
 
-	if (fileDialog.HasSelected())
+	if (m_fileDialog.HasSelected())
 	{
 		if (m_map != nullptr)
 		{
-			LMap::ReadFile(*m_map, fileDialog.GetSelected().string());
+			LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
 		}
 		else
 		{
 			std::cerr << "[UIWrapper] Attempted to write to null map data" << std::endl;
 		}
 
-		std::cout << "[UIWrapper] Selected filename " << fileDialog.GetSelected().string() << std::endl;
-		fileDialog.ClearSelected();
+		std::cout << "[UIWrapper] Selected filename " << m_fileDialog.GetSelected().string() << std::endl;
+		m_fileDialog.ClearSelected();
 	}
 
 	End();
@@ -133,4 +107,24 @@ void UIWrapper::Render()
 	SDL_SetRenderDrawColor(m_renderer, (Uint8)(s_clearColour.x * 255), (Uint8)(s_clearColour.y * 255), (Uint8)(s_clearColour.z * 255), (Uint8)(s_clearColour.w * 255));
 	ImGui_ImplSDLRenderer2_RenderDrawData(GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
+}
+
+// Consider expanding ImGuiFile to allow for the creation of files too.
+void UIWrapper::NewHLVLPanel(char* fileName)
+{
+	Begin("New HLVL");
+
+	InputText(m_inputLabel.c_str(), fileName, MAX_FILE_NAME_LENGTH);
+	SameLine();
+	Text(".hlvl");
+
+	if (Button("Create"))
+	{
+		LMap::CreateFile(fileName);
+
+		std::cout << "[UIWrapper] Created new hlvl: " << fileName << ".hlvl";
+		m_displayNewPanel = false;
+	}
+
+	End();
 }
