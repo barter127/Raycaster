@@ -24,6 +24,8 @@ public:
 
 private:
 	void NewHLVLPanel(char* fileName);
+	void UnsavedChangesPanel();
+
 
 	SDL_Renderer* m_renderer;
 	static ImVec4 s_clearColour;
@@ -31,7 +33,8 @@ private:
 
 	std::string m_currentMapFile = "";
 	LMap* m_map;
-	bool m_saved = true;
+	bool m_saved = false;
+	bool m_creatingNewFile = false;
 
 	ImGuiFileBrowserFlags flags = ImGuiFileBrowserFlags_CloseOnEsc | 
 		ImGuiFileBrowserFlags_ConfirmOnEnter | 

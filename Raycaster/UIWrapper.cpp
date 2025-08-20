@@ -116,18 +116,88 @@ void UIWrapper::Render()
 // Consider expanding ImGuiFile to allow for the creation of files too.
 void UIWrapper::NewHLVLPanel(char* fileName)
 {
+	m_saved = false;
+
 	Begin("New HLVL");
 
 	InputText("##label", fileName, MAX_FILE_NAME_LENGTH);
 	SameLine();
 	Text(".hlvl");
 
-	if (Button("Create") && !strcmp(fileName, " "))
+	if (Button("Create") && strcmp(fileName, ""))
 	{
-		m_currentMapFile = LMap::CreateFile(fileName);
-
 		std::cout << "[UIWrapper] Created new hlvl: " << fileName << ".hlvl";
 
+		m_creatingNewFile = true;
+	}
+
+	if (!m_saved && m_creatingNewFile)
+	{
+		Begin("Unsaved Changes");
+
+		Text("Save changes?");
+
+		if (Button("Save"))
+		{
+			LMap::SaveFile(*m_map, m_currentMapFile);
+
+			LMap::CreateFile(fileName);
+
+			m_saved = true;
+			m_displayNewPanel = false;
+		}
+
+		SameLine();
+		if (Button("Don't Save"))
+		{
+			LMap::CreateFile(fileName);
+
+			m_saved = true;
+			m_displayNewPanel = false;
+		}
+
+		SameLine();
+		if (Button("Cancel"))
+		{
+			m_creatingNewFile = false;
+			m_displayNewPanel = false;
+		}
+
+		End();
+	}
+
+	End();
+}
+
+void UIWrapper::UnsavedChangesPanel()
+{
+	Begin("Unsaved Changes");
+
+	Text("Save changes?");
+
+	if (Button("Save"))
+	{
+		LMap::SaveFile(*m_map, m_currentMapFile);
+
+		LMap::CreateFile(fileName);
+
+		m_saved = true;
+		m_displayNewPanel = false;
+	}
+
+	SameLine();
+	if (Button("Don't Save"))
+	{
+		LMap::CreateFile(fileName);
+
+		m_saved = true;
+		m_displayNewPanel = false;
+	}
+
+	SameLine();
+	if (Button("Cancel"))
+	{
+		m_creatingNewFile = false;
 		m_displayNewPanel = false;
 	}
 
