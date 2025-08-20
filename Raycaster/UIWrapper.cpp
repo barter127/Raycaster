@@ -42,6 +42,9 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 	// Initialize ImGui for SDL and SDL_Renderer
 	ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer2_Init(renderer);
+
+	m_mapWidth = m_map->GetWidth();
+	m_mapHeight = m_map->GetHeight();
 }
 
 UIWrapper::~UIWrapper()
@@ -63,47 +66,80 @@ void UIWrapper::Render()
 	NewFrame();
 
 	Begin("Editor");
-
-	m_fileDialog.Display();
-
-	if (Button("New")) { m_displayNewPanel = !m_displayNewPanel; }
-	if (m_displayNewPanel) { NewHLVLPanel(m_fileName); }
-
-	SameLine();
-	if (Button("Save")) 
 	{
-		bool success = LMap::SaveFile(*m_map, m_currentMapFile);
 
-		if (success)
+		m_fileDialog.Display();
+
+		if (Button("New")) { m_displayNewPanel = !m_displayNewPanel; }
+		if (m_displayNewPanel) { NewHLVLPanel(m_fileName); }
+
+		SameLine();
+		if (Button("Save")) 
 		{
+			bool success = LMap::SaveFile(*m_map, m_currentMapFile);
+
+			if (success)
+			{
+				m_saved = true;
+			}
+		}
+
+		SameLine();
+		if (Button("Load")) 
+		{
+			m_fileDialog.Open();
+		}
+
+		if (m_fileDialog.HasSelected())
+		{
+			if (m_map != nullptr)
+			{
+				LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
+
+				// Cache map dimensions for data locality.
+				m_mapWidth = m_map->GetWidth();
+				m_mapHeight = m_map->GetHeight();
+
+				m_currentMapFile = m_fileDialog.GetSelected().string();
+			}
+			else
+			{
+				std::cerr << "[UIWrapper] Attempted to read a null LMap" << std::endl;
+			}
+
+			std::cout << "[UIWrapper] Selected filename " << m_fileDialog.GetSelected().string() << std::endl;
+			m_fileDialog.ClearSelected();
+
 			m_saved = true;
 		}
-	}
 
-	SameLine();
-	if (Button("Load")) 
-	{
-		m_fileDialog.Open();
-	}
 
-	if (m_fileDialog.HasSelected())
-	{
-		if (m_map != nullptr)
+		Text("Tile Map");
 		{
-			LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
-			m_currentMapFile = m_fileDialog.GetSelected().string();
-		}
-		else
-		{
-			std::cerr << "[UIWrapper] Attempted to read a null LMap" << std::endl;
-		}
+			static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit
+				| ImGuiTableFlags_PadOuterX;
 
-		std::cout << "[UIWrapper] Selected filename " << m_fileDialog.GetSelected().string() << std::endl;
-		m_fileDialog.ClearSelected();
+			PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.75f, 0.75f));
+			if (BeginTable("table1", m_mapWidth, flags))
+			{
 
-		m_saved = true;
+				for (int row = 0; row < m_mapWidth; row++)
+				{
+					TableNextRow();
+					for (int column = 0; column < m_mapHeight; column++)
+					{
+						TableSetColumnIndex(column);
+
+						std::string label = "##TileMapButton " + std::to_string(row) + ", " + std::to_string(column);
+						Button(label.c_str(), ImVec2(7.5f, 7.5f));
+					}
+				}
+
+				EndTable();
+				PopStyleVar();
+			}
+		}
 	}
-
 	End();
 
 	ImGui::Render();
@@ -164,41 +200,6 @@ void UIWrapper::NewHLVLPanel(char* fileName)
 		}
 
 		End();
-	}
-
-	End();
-}
-
-void UIWrapper::UnsavedChangesPanel()
-{
-	Begin("Unsaved Changes");
-
-	Text("Save changes?");
-
-	if (Button("Save"))
-	{
-		LMap::SaveFile(*m_map, m_currentMapFile);
-
-		LMap::CreateFile(fileName);
-
-		m_saved = true;
-		m_displayNewPanel = false;
-	}
-
-	SameLine();
-	if (Button("Don't Save"))
-	{
-		LMap::CreateFile(fileName);
-
-		m_saved = true;
-		m_displayNewPanel = false;
-	}
-
-	SameLine();
-	if (Button("Cancel"))
-	{
-		m_creatingNewFile = false;
-		m_displayNewPanel = false;
 	}
 
 	End();
