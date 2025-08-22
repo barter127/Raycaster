@@ -16,6 +16,8 @@
 
 #define MAX_FILE_NAME_LENGTH 25
 
+class Texture2D;
+
 class UIWrapper
 {
 public:
@@ -33,7 +35,7 @@ private:
 	static ImVec4 s_clearColour;
 	ImGuiIO m_io;
 
-	std::vector<SDL_Texture*> m_buttonTextures;
+	std::vector<Texture2D> m_buttonTextures;
 	int m_selectedTexture = 1;
 
 	// Map data.

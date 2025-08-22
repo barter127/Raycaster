@@ -259,6 +259,9 @@ void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector
 
             Uint32 colour = 0;
 
+            assert(m_map->GetFloorData().multiplier1 > 0);
+            assert(m_map->GetFloorData().multiplier2 > 0);
+
             int checkerBoardPattern = (int(cellX + cellY)) % m_map->GetFloorData().multiplier1;
 
             if (checkerBoardPattern < m_map->GetFloorData().multiplier2 && m_map->GetFloorData().isCheckered) colour = GetPixelColour(m_floorTexture, tx, ty);

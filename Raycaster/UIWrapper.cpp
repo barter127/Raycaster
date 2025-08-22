@@ -8,6 +8,7 @@ using namespace ImGui;
 #include "imgui_impl_sdlrenderer2.h"
 
 #include "LMap.h"
+#include "Texture2D.h"
 
 ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -17,7 +18,7 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 {
 	IMGUI_CHECKVERSION();
 
-	// Get display DPI scaling
+	// Get display DPI scaling.
 	float main_scale = 1.0f;
 	int display_index = 0;
 	float ddpi = 0.0f, hdpi = 0.0f, vdpi = 0.0f;
@@ -48,30 +49,25 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 	m_mapWidth = m_map->GetWidth();
 	m_mapHeight = m_map->GetHeight();
 
-	SDL_Surface* wallSurface = IMG_Load("Assets/Brick_Wall_64x64.png");
-	SDL_Surface* rockSurface = IMG_Load("Assets/Green_Wall_Rocks_64x64.png");
-	SDL_Surface* mossSurface = IMG_Load("Assets/Dirty_Mossy_Tiles_64x64.png");
-	SDL_Surface* earthSurface = IMG_Load("Assets/Dehydrated_Earth_64x64.png");
-	SDL_Surface* waterSurface = IMG_Load("Assets/Water_64x64.png");
-
-
-	SDL_Texture* wallTexture = SDL_CreateTextureFromSurface(m_renderer, wallSurface);
-	SDL_Texture* rockTexture = SDL_CreateTextureFromSurface(m_renderer, rockSurface);
-	SDL_Texture* mossTexture = SDL_CreateTextureFromSurface(m_renderer, mossSurface);
-	SDL_Texture* earthTexture = SDL_CreateTextureFromSurface(m_renderer, earthSurface);
-	SDL_Texture* waterTexture = SDL_CreateTextureFromSurface(m_renderer, waterSurface);
-
+	Texture2D* wallTexture = new Texture2D(m_renderer);
+	wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
 	m_buttonTextures.push_back(wallTexture);
-	m_buttonTextures.push_back(rockTexture);
-	m_buttonTextures.push_back(mossTexture);
-	m_buttonTextures.push_back(earthTexture);
-	m_buttonTextures.push_back(waterTexture);
 
-	SDL_FreeSurface(wallSurface);
-	SDL_FreeSurface(rockSurface);
-	SDL_FreeSurface(mossSurface);
-	SDL_FreeSurface(earthSurface);
-	SDL_FreeSurface(waterSurface);
+	Texture2D* rockTexture = new Texture2D(m_renderer);
+	wallTexture->LoadFromFile("Assets/Green_Wall_Rocks_64x64.png");
+	m_buttonTextures.push_back(rockTexture);
+
+	Texture2D* mossTexture = new Texture2D(m_renderer);
+	wallTexture->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
+	m_buttonTextures.push_back(mossTexture);
+
+	Texture2D* earthTexture = new Texture2D(m_renderer);
+	wallTexture->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
+	m_buttonTextures.push_back(earthTexture);
+
+	Texture2D* waterTexture = new Texture2D(m_renderer);
+	wallTexture->LoadFromFile("Assets/Water_64x64.png");
+	m_buttonTextures.push_back(waterTexture);
 }
 
 UIWrapper::~UIWrapper()
@@ -119,9 +115,14 @@ void UIWrapper::Render()
 
 		if (m_fileDialog.HasSelected())
 		{
-			std::cout << m_fileDialog.GetSelected().extension();
+			if (m_map == nullptr)
+			{
+				std::cout << "[UIWrapper] m_map is nullptr" << std::endl;
+				return;
+			}
 
-			if (m_map != nullptr && m_fileDialog.GetSelected().extension() == ".hlvl")
+
+			if (m_fileDialog.GetSelected().extension() == ".hlvl")
 			{
 				LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
 
@@ -131,12 +132,15 @@ void UIWrapper::Render()
 
 				m_currentMapFile = m_fileDialog.GetSelected().string();
 			}
+
 			else
 			{
-				std::cerr << "[UIWrapper] Attempted to read a null LMap" << std::endl;
+				Texture2D* wallTexture = new Texture2D(m_renderer);
+				wallTexture->LoadFromFile(m_fileDialog.GetSelected().string());
+				m_buttonTextures.push_back(wallTexture);
 			}
 
-			std::cout << "[UIWrapper] Selected filename " << m_fileDialog.GetSelected().string() << std::endl;
+			std::cout << "[UIWrapper] Selected file " << m_fileDialog.GetSelected().string() << std::endl;
 			m_fileDialog.ClearSelected();
 
 			m_saved = true;
@@ -277,7 +281,7 @@ void UIWrapper::Render()
 	SDL_RenderPresent(m_renderer);
 }
 
-// Consider expanding ImGuiFile to allow for the creation of files too.
+// Consider expanding ImGuiFileBrowser to allow for the creation of files in the filebrowser.
 void UIWrapper::NewHLVLPanel(char* fileName)
 {
 	m_saved = false;
