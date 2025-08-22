@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#include "WindowConstants.h"
 #include "LevelRenderer.h"
 
 #include "Player.h"

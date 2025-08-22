@@ -175,7 +175,7 @@
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="UIWrapper.h" />
     <ClInclude Include="Vector2D.h" />
-    <ClInclude Include="WindowConstants.h" />
+    <ClInclude Include="WindowData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

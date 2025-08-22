@@ -33,7 +33,7 @@ private:
 	Player* m_player;
 	LMap m_map;
 
-	std::vector<Texture2D*> m_activeTextures;
+	// std::vector<Texture2D*> m_activeTextures;
 };
 
 #endif

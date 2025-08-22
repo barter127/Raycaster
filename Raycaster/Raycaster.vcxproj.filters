@@ -104,7 +104,7 @@
     <ClInclude Include="LevelTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowConstants.h">
+    <ClInclude Include="WindowData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LevelRenderer.h">

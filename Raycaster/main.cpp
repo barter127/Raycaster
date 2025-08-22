@@ -4,7 +4,7 @@
 #include "SDL_image.h"
 
 #include "ScreenManager.h"
-#include "WindowConstants.h"
+#include "WindowData.h"
 
 bool InitSDL();
 bool CloseSDL();
@@ -18,10 +18,11 @@ SDL_Renderer* g_renderer = nullptr;
 
 Uint32 g_oldTime;
 const int FPS = 60;
-const int SKIP_TICKS = 1000 / FPS;
+const int FRAME_DELAY = 1000 / FPS;
 Uint32 g_nextGameTick;
 
 ScreenManager* g_screenManager = nullptr;
+SDL_Event g_event;
 
 int main(int argc, char* argv[])
 {
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
 			quit = Update();
 
 			// FPS Locking.
-			g_nextGameTick += SKIP_TICKS;
+			g_nextGameTick += FRAME_DELAY;
 			int frameTime = g_nextGameTick + g_oldTime - SDL_GetTicks();
 
 			if (frameTime <= 0)
@@ -75,9 +76,9 @@ bool InitSDL()
 		g_window = SDL_CreateWindow("Raycaster",
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
-			SDL_WINDOW_SHOWN);
+			windowData.width,
+			windowData.height,
+			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 
 		// Check window was created.
@@ -130,26 +131,35 @@ bool CloseSDL()
 	return true;
 }
 
-	SDL_Event event;
 bool Update()
 {
 	Uint32 newTime = SDL_GetTicks();
 
 	// Get the current event from the event queue.
-	SDL_PollEvent(&event);
+	SDL_PollEvent(&g_event);
 
 	// Check if event is SDL_QUIT.
 	// If it is exit program.
-	switch (event.type)
+	switch (g_event.type)
 	{
 	case SDL_QUIT:
 		return true;
+		break;
+
+	case SDL_WINDOWEVENT:
+
+		if (g_event.window.event == SDL_WINDOWEVENT_RESIZED) 
+		{
+			windowData.width = g_event.window.data1;
+			windowData.height = g_event.window.data2;
+			SDL_SetWindowSize(g_window, windowData.width, windowData.height);
+		}
 		break;
 	}
 
 	// Call Update for current scene
 	float deltaTime = (float)(newTime - g_oldTime) / 1000.0f;
-	g_screenManager->Update(deltaTime, event);
+	g_screenManager->Update(deltaTime, g_event);
 
 	g_oldTime = newTime;
 
