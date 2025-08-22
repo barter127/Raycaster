@@ -7,9 +7,9 @@
 #include <string>
 
 struct FloorData {
-bool isCheckered;
-int multiplier1;
-int multiplier2;
+bool isCheckered = 0;
+int multiplier1 = 1;
+int multiplier2 = 1;
 };
 
 #define DEFAULT_MAP_WIDTH 24
@@ -32,8 +32,13 @@ public:
 	}
 
 	inline LevelArray GetLevelArray() { return m_lvlArray; }
+	void UpdateLevelArray(LevelArray inputLvlArray) { m_lvlArray = inputLvlArray; }
+
 	inline FloorData GetFloorData() { return m_floorData; }
+	void UpdateFloorData(FloorData inputFloorData) { m_floorData = inputFloorData; }
+
 	inline FloorData GetCeilingData() { return m_ceilingData; }
+	void UpdateCeilingData(FloorData inputCeilingData) { m_ceilingData = inputCeilingData; }
 
 	inline int GetWidth() { return m_width; }
 	inline int GetHeight() { return m_height; }

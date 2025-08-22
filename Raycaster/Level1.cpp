@@ -14,35 +14,10 @@
 
 std::vector<BoxCollider> levelColliders;
 
-void Level1::CreateMapColliders()
-{
-    LevelArray lArray = m_map.GetLevelArray();
-
-    for (int x = 0; x < m_map.GetWidth(); x++)
-    {
-        for (int y = 0; y < m_map.GetHeight(); y++)
-        {
-            if (lArray[x][y] > 0)
-            {
-                BoxCollider levelCollider = {true, nullptr, x, y, BLOCK_WIDTH, BLOCK_HEIGHT};
-                levelColliders.push_back(levelCollider);
-            }
-        }
-    }
-}
-
-void Level1::CollisionLoop()
-{
-    for (int i = 0; i < levelColliders.size(); i++)
-    {
-        Collisions::BoxHard(m_player->m_collider, levelColliders[i]);
-    }
-}
-
 Level1::Level1(SDL_Window* window, SDL_Renderer* renderer) 
     : Screen(renderer)
 {
-    LMap::ReadFile(m_map, "Levels/Test.hlvl");
+    LMap::ReadFile(m_map, "Assets/Levels/Test.hlvl");
     
     m_ui = new UIWrapper(window, renderer, &m_map);
 
@@ -77,4 +52,29 @@ void Level1::Render()
     m_levelRender->Render(m_player->m_position, m_player->m_direction, m_player->m_plane);
     m_player->Render();
     m_ui->Render();
+}
+
+void Level1::CreateMapColliders()
+{
+    LevelArray lArray = m_map.GetLevelArray();
+
+    for (int x = 0; x < m_map.GetWidth(); x++)
+    {
+        for (int y = 0; y < m_map.GetHeight(); y++)
+        {
+            if (lArray[x][y] > 0)
+            {
+                BoxCollider levelCollider = { true, nullptr, x, y, BLOCK_WIDTH, BLOCK_HEIGHT };
+                levelColliders.push_back(levelCollider);
+            }
+        }
+    }
+}
+
+void Level1::CollisionLoop()
+{
+    for (int i = 0; i < levelColliders.size(); i++)
+    {
+        Collisions::BoxHard(m_player->m_collider, levelColliders[i]);
+    }
 }

@@ -11,6 +11,8 @@ using namespace ImGui;
 
 ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+SDL_Texture* wallTexture;
+
 UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_renderer(renderer), m_map(map)
 {
 	IMGUI_CHECKVERSION();
@@ -45,6 +47,31 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 
 	m_mapWidth = m_map->GetWidth();
 	m_mapHeight = m_map->GetHeight();
+
+	SDL_Surface* wallSurface = IMG_Load("Assets/Brick_Wall_64x64.png");
+	SDL_Surface* rockSurface = IMG_Load("Assets/Green_Wall_Rocks_64x64.png");
+	SDL_Surface* mossSurface = IMG_Load("Assets/Dirty_Mossy_Tiles_64x64.png");
+	SDL_Surface* earthSurface = IMG_Load("Assets/Dehydrated_Earth_64x64.png");
+	SDL_Surface* waterSurface = IMG_Load("Assets/Water_64x64.png");
+
+
+	SDL_Texture* wallTexture = SDL_CreateTextureFromSurface(m_renderer, wallSurface);
+	SDL_Texture* rockTexture = SDL_CreateTextureFromSurface(m_renderer, rockSurface);
+	SDL_Texture* mossTexture = SDL_CreateTextureFromSurface(m_renderer, mossSurface);
+	SDL_Texture* earthTexture = SDL_CreateTextureFromSurface(m_renderer, earthSurface);
+	SDL_Texture* waterTexture = SDL_CreateTextureFromSurface(m_renderer, waterSurface);
+
+	m_buttonTextures.push_back(wallTexture);
+	m_buttonTextures.push_back(rockTexture);
+	m_buttonTextures.push_back(mossTexture);
+	m_buttonTextures.push_back(earthTexture);
+	m_buttonTextures.push_back(waterTexture);
+
+	SDL_FreeSurface(wallSurface);
+	SDL_FreeSurface(rockSurface);
+	SDL_FreeSurface(mossSurface);
+	SDL_FreeSurface(earthSurface);
+	SDL_FreeSurface(waterSurface);
 }
 
 UIWrapper::~UIWrapper()
@@ -67,7 +94,6 @@ void UIWrapper::Render()
 
 	Begin("Editor");
 	{
-
 		m_fileDialog.Display();
 
 		if (Button("New")) { m_displayNewPanel = !m_displayNewPanel; }
@@ -88,11 +114,14 @@ void UIWrapper::Render()
 		if (Button("Load")) 
 		{
 			m_fileDialog.Open();
+			m_fileDialog.SetDirectory("Assets/Levels");
 		}
 
 		if (m_fileDialog.HasSelected())
 		{
-			if (m_map != nullptr)
+			std::cout << m_fileDialog.GetSelected().extension();
+
+			if (m_map != nullptr && m_fileDialog.GetSelected().extension() == ".hlvl")
 			{
 				LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
 
@@ -113,15 +142,44 @@ void UIWrapper::Render()
 			m_saved = true;
 		}
 
+		PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.75f, 0.75f));
+		PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+		Text("Palette");
+		{
+			ImVec2 buttonSize = ImVec2(20.0f, 20.0f);
+			for (int i = 0; i < m_buttonTextures.size(); i++)
+			{
+				std::string label = "##Palette" + std::to_string(i);
+				ImTextureID texID = (ImTextureID)(intptr_t)m_buttonTextures[i];
+
+				if (ImageButton(label.c_str(), texID, buttonSize))
+				{
+					m_selectedTexture = ++i;
+				}
+				
+				if (i < m_buttonTextures.size() - 1) SameLine();
+			}
+
+			SameLine();
+			if (Button("Add", ImVec2(30, 20)))
+			{
+				m_fileDialog.Open();
+				m_fileDialog.SetDirectory("Assets");
+			}
+		}
 
 		Text("Tile Map");
 		{
-			static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit
+			static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit
 				| ImGuiTableFlags_PadOuterX;
 
-			PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.75f, 0.75f));
-			if (BeginTable("table1", m_mapWidth, flags))
-			{
+			BeginTable("Tile Map Table", m_mapWidth, tableFlags);
+
+				std::string label = ""; // To prevent reinitialisation.
+				ImTextureID texID = 0;
+				ImVec2 buttonSize = ImVec2(15.0f, 15.0f);
+
+				LevelArray lvlMap = m_map->GetLevelArray();
 
 				for (int row = 0; row < m_mapWidth; row++)
 				{
@@ -130,15 +188,85 @@ void UIWrapper::Render()
 					{
 						TableSetColumnIndex(column);
 
-						std::string label = "##TileMapButton " + std::to_string(row) + ", " + std::to_string(column);
-						Button(label.c_str(), ImVec2(7.5f, 7.5f));
+						label = "##TileMapButton " + std::to_string(row) + ", " + std::to_string(column);
+
+						int textureIndex = lvlMap[column][row] - 1;
+
+						if (textureIndex >= 0)
+						{
+							texID = (ImTextureID)(intptr_t)m_buttonTextures[textureIndex];
+
+							if (ImageButton(label.c_str(), texID, buttonSize))
+							{
+								lvlMap[column][row]= m_selectedTexture;
+							}
+						}
+						else
+						{
+							if (Button(label.c_str(), buttonSize))
+							{
+								lvlMap[column][row]= m_selectedTexture;
+							}
+						}
 					}
 				}
 
-				EndTable();
-				PopStyleVar();
-			}
+				m_map->UpdateLevelArray(lvlMap);
+
+			EndTable();
 		}
+		PopStyleVar();
+		PopStyleVar();
+		NewLine();
+
+		Text("Floor");
+		{
+			m_floorData = m_map->GetFloorData();
+
+			// Might be worth keeping these as members of UIWrapper.
+			float dragIntSpeed = 0.1f;
+			int minDragValue = 1;
+			int maxDragValue = 10;
+
+			Text("Floor Is Checkered:   ");
+			SameLine();
+			Checkbox("##FloorCheckered", &m_floorData.isCheckered);
+
+			Text("Texture 1 Multiplier: ");
+			SameLine();
+			DragInt("##FloorTexMultiplier1", &m_floorData.multiplier1, dragIntSpeed, minDragValue, maxDragValue);
+
+			Text("Texture 2 Multiplier: ");
+			SameLine();
+			DragInt("##FloorTexMultiplier2", &m_floorData.multiplier2, dragIntSpeed, minDragValue, maxDragValue);
+
+			m_map->UpdateFloorData(m_floorData);
+		}
+		NewLine();
+
+		Text("Ceiling");
+		{
+			m_ceilingData = m_map->GetCeilingData();
+
+			float dragIntSpeed = 0.1f;
+			int minDragValue = 1;
+			int maxDragValue = 10;
+
+			Text("Ceiling Is Checkered: ");
+			SameLine();
+			Checkbox("##CeilingCheckered", &m_ceilingData.isCheckered);
+
+			Text("Texture 1 Multiplier: ");
+			SameLine();
+			DragInt("##CeilingTexMultiplier1", &m_ceilingData.multiplier1, dragIntSpeed, minDragValue, maxDragValue);
+
+			Text("Texture 2 Multiplier: ");
+			SameLine();
+			DragInt("##CeilingTexMultiplier2", &m_ceilingData.multiplier2, dragIntSpeed, minDragValue, maxDragValue);
+
+			m_map->UpdateCeilingData(m_ceilingData);
+		}
+		NewLine();
 	}
 	End();
 

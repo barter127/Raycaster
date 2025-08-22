@@ -4,7 +4,10 @@
 #define _UI_WRAPPER_H
 
 #include <string>
+#include <vector>
+
 #include "SDL.h"
+#include "SDL_image.h"
 
 #include "imgui.h"
 #include "imfilebrowser.h"
@@ -21,7 +24,7 @@ public:
 
 	void Render();
 	void Update(float deltaTime,  SDL_Event event);
-
+	
 private:
 	void NewHLVLPanel(char* fileName);
 
@@ -29,6 +32,9 @@ private:
 	SDL_Renderer* m_renderer;
 	static ImVec4 s_clearColour;
 	ImGuiIO m_io;
+
+	std::vector<SDL_Texture*> m_buttonTextures;
+	int m_selectedTexture = 1;
 
 	// Map data.
 	std::string m_currentMapFile = "";
@@ -38,6 +44,9 @@ private:
 	int m_mapWidth = 0;
 	int m_mapHeight = 0;
 
+	FloorData m_floorData;
+	FloorData m_ceilingData;
+
 	// Determine what UI panel should be shown currently.
 	bool m_saved = false;
 	bool m_creatingNewFile = false;
@@ -45,11 +54,11 @@ private:
 
 
 	// File broswer.
-	ImGuiFileBrowserFlags flags = ImGuiFileBrowserFlags_CloseOnEsc | 
+	ImGuiFileBrowserFlags m_flags = ImGuiFileBrowserFlags_CloseOnEsc | 
 		ImGuiFileBrowserFlags_ConfirmOnEnter | 
 		ImGuiFileBrowserFlags_SkipItemsCausingError;
 
-	ImGui::FileBrowser m_fileDialog = ImGui::FileBrowser(flags);
+	ImGui::FileBrowser m_fileDialog = ImGui::FileBrowser(m_flags);
 
 };
 

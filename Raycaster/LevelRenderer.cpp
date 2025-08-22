@@ -10,20 +10,17 @@
 LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map) 
     : m_renderer(renderer)
 {
-    m_wallTexture = new LevelTexture(m_renderer);
-    m_wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
-
     m_floorTexture = new LevelTexture(m_renderer);
     m_floorTexture->LoadFromFile("Assets/Dirt_Road_64x64.png");
 
     m_ceilingTexture = new LevelTexture(m_renderer);
     m_ceilingTexture->LoadFromFile("Assets/Wooden_Floor_Horizontal_64x64.png");
 
-    LevelTexture* water = new LevelTexture(m_renderer);
-    water->LoadFromFile("Assets/Water_64x64.png");
+    LevelTexture* wall = new LevelTexture(m_renderer);
+    wall->LoadFromFile("Assets/Brick_Wall_64x64.png");
 
-    LevelTexture* lava = new LevelTexture(m_renderer);
-    lava->LoadFromFile("Assets/brick-wall.png");
+    LevelTexture* metal = new LevelTexture(m_renderer);
+    metal->LoadFromFile("Assets/Green_Wall_Rocks_64x64.png");
 
     LevelTexture* moss = new LevelTexture(m_renderer);
     moss->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
@@ -31,14 +28,14 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map)
     LevelTexture* earth = new LevelTexture(m_renderer);
     earth->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
 
-    LevelTexture* metal = new LevelTexture(m_renderer);
-    metal->LoadFromFile("Assets/trak2_wall1b.tga.preview.jpg");
+    LevelTexture* water = new LevelTexture(m_renderer);
+    water->LoadFromFile("Assets/Water_64x64.png");
 
-    m_levelTextureArray[0] = water;
-    m_levelTextureArray[1] = lava;
+    m_levelTextureArray[0] = wall;
+    m_levelTextureArray[1] = metal;
     m_levelTextureArray[2] = moss;
     m_levelTextureArray[3] = earth;
-    m_levelTextureArray[4] = metal;
+    m_levelTextureArray[4] = water;
 
     m_backBuffer = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_WIDTH, SCREEN_HEIGHT, 2, SDL_PIXELFORMAT_RGBA32);
 
@@ -262,9 +259,9 @@ void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector
 
             Uint32 colour = 0;
 
-            int checkerBoardPattern = (int(cellX + cellY)) % floorTex1Multiplier;
+            int checkerBoardPattern = (int(cellX + cellY)) % m_map->GetFloorData().multiplier1;
 
-            if (checkerBoardPattern < floorTex2Multiplier && m_floorIsCheckered) colour = GetPixelColour(m_floorTexture, tx, ty);
+            if (checkerBoardPattern < m_map->GetFloorData().multiplier2 && m_map->GetFloorData().isCheckered) colour = GetPixelColour(m_floorTexture, tx, ty);
             else colour = GetPixelColour(m_levelTextureArray[1], tx, ty); // Arbitrary texture.
 
             // Floor
