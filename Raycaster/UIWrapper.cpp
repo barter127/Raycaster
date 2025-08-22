@@ -51,23 +51,23 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 
 	Texture2D* wallTexture = new Texture2D(m_renderer);
 	wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
-	m_buttonTextures.push_back(wallTexture);
+	m_paletteTextures.push_back(wallTexture);
 
 	Texture2D* rockTexture = new Texture2D(m_renderer);
-	wallTexture->LoadFromFile("Assets/Green_Wall_Rocks_64x64.png");
-	m_buttonTextures.push_back(rockTexture);
+	rockTexture->LoadFromFile("Assets/Green_Wall_Rocks_64x64.png");
+	m_paletteTextures.push_back(rockTexture);
 
 	Texture2D* mossTexture = new Texture2D(m_renderer);
-	wallTexture->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
-	m_buttonTextures.push_back(mossTexture);
+	mossTexture->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
+	m_paletteTextures.push_back(mossTexture);
 
 	Texture2D* earthTexture = new Texture2D(m_renderer);
-	wallTexture->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
-	m_buttonTextures.push_back(earthTexture);
+	earthTexture->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
+	m_paletteTextures.push_back(earthTexture);
 
 	Texture2D* waterTexture = new Texture2D(m_renderer);
-	wallTexture->LoadFromFile("Assets/Water_64x64.png");
-	m_buttonTextures.push_back(waterTexture);
+	waterTexture->LoadFromFile("Assets/Water_64x64.png");
+	m_paletteTextures.push_back(waterTexture);
 }
 
 UIWrapper::~UIWrapper()
@@ -137,7 +137,7 @@ void UIWrapper::Render()
 			{
 				Texture2D* wallTexture = new Texture2D(m_renderer);
 				wallTexture->LoadFromFile(m_fileDialog.GetSelected().string());
-				m_buttonTextures.push_back(wallTexture);
+				m_paletteTextures.push_back(wallTexture);
 			}
 
 			std::cout << "[UIWrapper] Selected file " << m_fileDialog.GetSelected().string() << std::endl;
@@ -151,17 +151,17 @@ void UIWrapper::Render()
 		Text("Palette");
 		{
 			ImVec2 buttonSize = ImVec2(20.0f, 20.0f);
-			for (int i = 0; i < m_buttonTextures.size(); i++)
+			for (int i = 0; i < m_paletteTextures.size(); i++)
 			{
 				std::string label = "##Palette" + std::to_string(i);
-				ImTextureID texID = (ImTextureID)(intptr_t)m_buttonTextures[i];
+				ImTextureID texID = (ImTextureID)(intptr_t)m_paletteTextures[i]->GetTexture();
 
 				if (ImageButton(label.c_str(), texID, buttonSize))
 				{
 					m_selectedTexture = ++i;
 				}
 				
-				if (i < m_buttonTextures.size() - 1) SameLine();
+				if (i < m_paletteTextures.size() - 1) SameLine();
 			}
 
 			SameLine();
@@ -198,7 +198,7 @@ void UIWrapper::Render()
 
 						if (textureIndex >= 0)
 						{
-							texID = (ImTextureID)(intptr_t)m_buttonTextures[textureIndex];
+							texID = (ImTextureID)(intptr_t)m_paletteTextures[textureIndex]->GetTexture();
 
 							if (ImageButton(label.c_str(), texID, buttonSize))
 							{

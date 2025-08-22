@@ -35,7 +35,7 @@ private:
 	static ImVec4 s_clearColour;
 	ImGuiIO m_io;
 
-	std::vector<Texture2D> m_buttonTextures;
+	std::vector<Texture2D*> m_paletteTextures;
 	int m_selectedTexture = 1;
 
 	// Map data.

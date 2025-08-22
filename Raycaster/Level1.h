@@ -4,6 +4,9 @@
 #define _LEVEL1_SCREEN_H
 
 #include "SDL.h"
+
+#include <vector>
+
 #include "Screen.h"
 #include "LMap.h"
 
@@ -29,6 +32,8 @@ private:
 	LevelRenderer* m_levelRender;
 	Player* m_player;
 	LMap m_map;
+
+	std::vector<Texture2D*> m_activeTextures;
 };
 
 #endif
