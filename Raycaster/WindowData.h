@@ -5,11 +5,11 @@
 
 struct WindowData
 {
-	int width = 640;
-	int height = 480;
+	int width = 1280;
+	int height = 720;
 };
 
 static WindowData windowData;
 
-#endif // !#define _WINDOW_DATA_H
+#endif // !_WINDOW_DATA_H
 

@@ -146,7 +146,6 @@
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TempMap.h" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="UIWrapper.cpp" />
     <ClCompile Include="Vector2D.cpp" />
@@ -174,7 +173,6 @@
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="UIWrapper.h" />
-    <ClInclude Include="Vector2D.h" />
     <ClInclude Include="WindowData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
