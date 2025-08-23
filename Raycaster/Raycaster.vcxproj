@@ -169,11 +169,16 @@
     <ClInclude Include="LevelTexture.h" />
     <ClInclude Include="LMap.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="UIWrapper.h" />
+    <ClInclude Include="Vector2D.h" />
     <ClInclude Include="WindowData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
