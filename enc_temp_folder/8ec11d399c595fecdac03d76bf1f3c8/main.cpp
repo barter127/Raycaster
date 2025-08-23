@@ -172,5 +172,6 @@ void Render()
 
 	g_screenManager->Render();
 
-	// No RenderPresent as viewport rendering is handled in UIWrapper.
+	// Swap Buffer.
+	//SDL_RenderPresent(g_renderer);
 }

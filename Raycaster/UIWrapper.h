@@ -28,10 +28,14 @@ public:
 	void Update(float deltaTime,  SDL_Event event);
 	
 private:
+	void HandleDocking();
+
 	void NewHLVLPanel(char* fileName);
 
 	// Rendering and IO.
 	SDL_Renderer* m_renderer;
+	SDL_Window* m_window;
+
 	static ImVec4 s_clearColour;
 	ImGuiIO m_io;
 

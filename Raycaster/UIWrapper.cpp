@@ -4,6 +4,8 @@
 
 // ImGUI dependencies
 using namespace ImGui;
+#include <imgui_internal.h>
+
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 
@@ -14,7 +16,7 @@ ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 SDL_Texture* wallTexture;
 
-UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_renderer(renderer), m_map(map)
+UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_window(window), m_renderer(renderer), m_map(map)
 {
 	IMGUI_CHECKVERSION();
 
@@ -28,11 +30,12 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 	}
 
 	CreateContext();
-	m_io = GetIO();
-	m_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	m_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	m_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-	m_io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Viewports
+	ImGuiIO& io = GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Viewports
+	m_io = io;
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -87,6 +90,9 @@ void UIWrapper::Render()
 	ImGui_ImplSDLRenderer2_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
 	NewFrame();
+
+	HandleDocking();
+	SDL_Texture* texture;
 
 	Begin("Editor");
 	{
@@ -274,11 +280,107 @@ void UIWrapper::Render()
 	}
 	End();
 
+	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	Begin("Viewport");
+	{
+		int width, height;
+		SDL_GetRendererOutputSize(m_renderer, &width, &height);
+		SDL_PixelFormatEnum format = SDL_PIXELFORMAT_ARGB8888;
+		int pitch = width * SDL_BYTESPERPIXEL(format);
+		int bitDepth = 32;
+
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+		void* pixels = malloc(height * pitch);
+		if (!pixels) 
+		{
+			std::cerr << "[UIWrapper] Failed to read allocate pixel array" << std::endl;
+		}
+
+		// Copy the pixels from the frontbuffer to pixels array.
+		if (SDL_RenderReadPixels(m_renderer, NULL, 0, pixels, pitch) != 0) 
+		{
+			std::cerr << "[UIWrapper] Failed to read frontbuffer pixel data" << std::endl;
+		}
+
+		// Create a surface from the front buffer data.
+		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
+			pixels, width, height, bitDepth, pitch, format);
+
+		if (!surface) 
+		{
+			std::cerr << "[UIWrapper] Failed to create frontbuffer surface" << std::endl;
+		}
+
+		texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+		if (!texture) 
+		{
+			std::cerr << "[UIWrapper] Failed to create frontbuffer texture" << std::endl;
+		}
+
+		// Display buffer as ImGui Image.
+		ImGui::Image((ImTextureID)(intptr_t)texture, viewport->Size);
+
+		SDL_FreeSurface(surface);
+		free(pixels);  // Important to free manually allocated memory
+	}
+	PopStyleVar(3);
+
+	End();
+
 	ImGui::Render();
 	SDL_RenderSetScale(m_renderer, m_io.DisplayFramebufferScale.x, m_io.DisplayFramebufferScale.y);
 	SDL_SetRenderDrawColor(m_renderer, (Uint8)(s_clearColour.x * 255), (Uint8)(s_clearColour.y * 255), (Uint8)(s_clearColour.z * 255), (Uint8)(s_clearColour.w * 255));
 	ImGui_ImplSDLRenderer2_RenderDrawData(GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
+
+	SDL_DestroyTexture(texture);
+}
+
+bool dockspaceBuilt = false;
+
+void UIWrapper::HandleDocking()
+{
+	ImGuiViewport* viewport = GetMainViewport();
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoTitleBar;
+
+	SetNextWindowPos(viewport->Pos);
+	SetNextWindowSize(viewport->Size);
+	SetNextWindowViewport(viewport->ID);
+
+	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	Begin("DockSpace", nullptr, windowFlags);
+	PopStyleVar(3);
+
+	ImGuiID dockspaceId = ImGui::GetID("DockSpace");
+	ImGui::DockSpace(dockspaceId, ImVec2(0,0), ImGuiDockNodeFlags_NoTabBar);
+
+	if (!dockspaceBuilt)
+	{
+		dockspaceBuilt = true;
+
+		ImGui::DockBuilderRemoveNode(dockspaceId);
+		ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
+		ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
+
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.25f, nullptr, &dockspaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
+		ImGuiID dock_id_center = dockspaceId;
+
+		ImGui::DockBuilderDockWindow("Editor", dock_id_left);
+		ImGui::DockBuilderDockWindow("Viewport", dock_id_center);
+		//ImGui::DockBuilderDockWindow("Properties", dock_id_right); Maybe I add this.
+
+		ImGui::DockBuilderFinish(dockspaceId);
+	}
+
+	ImGui::End();
 }
 
 // Consider expanding ImGuiFileBrowser to allow for the creation of files in the filebrowser.
