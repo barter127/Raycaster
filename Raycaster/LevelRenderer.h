@@ -46,18 +46,12 @@ private:
 	SDL_Texture* m_frontBuffer = nullptr;
 
 	// Level Textures.
-	LevelTexture* m_wallTexture = nullptr; // Could expand to an array of surfaces.
 	LevelTexture* m_floorTexture = nullptr; // Could expand to an array of surfaces.
 	LevelTexture* m_ceilingTexture = nullptr; // Could expand to an array of surfaces.
 
 	LevelTexture* m_levelTextureArray[5];
 
 	LMap* m_map;
-
-	// Maybe cache optimise this??
-	//bool m_floorIsCheckered = true;
-	//int floorTex1Multiplier = 2;
-	//int floorTex2Multiplier = 1;
 };
 
 #endif // !_LEVEL_RENDERER_H

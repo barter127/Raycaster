@@ -44,10 +44,6 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map)
 
 LevelRenderer::~LevelRenderer()
 {
-    delete m_wallTexture;
-    m_wallTexture = nullptr;
-    m_wallTexture->Free();
-
     delete m_floorTexture;
     m_floorTexture = nullptr;
     m_floorTexture->Free();
@@ -198,7 +194,7 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
             int texY = (int)texPos & (texHeight - 1);
             texPos += step;
 
-            colour = GetPixelColour(m_levelTextureArray[texNum], texX, texY);
+            colour = GetPixelColour(m_levelTextureArray[texNum], texY, texX);
 
             // Make colour darker for y-sides.
             if (side == 1) colour = (colour & 0xfefefefe) >> 1; // Later break colour down to RGBA and allow control of components.

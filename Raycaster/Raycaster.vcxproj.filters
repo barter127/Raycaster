@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\imgui">
-      <UniqueIdentifier>{ffcb1ea7-b616-4f5e-803c-265df389a4fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\imgui\backend">
-      <UniqueIdentifier>{930d5b5a-8f5e-4f3b-b3c3-fadeb501b772}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Level">
       <UniqueIdentifier>{59fccbbf-bc02-45be-8250-0fbc2ebe8e01}</UniqueIdentifier>
     </Filter>
@@ -37,6 +31,15 @@
     <Filter Include="Source Files\Screen">
       <UniqueIdentifier>{88f6c536-2af9-46af-b425-907375e43bec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{5a788bca-b8d4-4694-893a-91707e7bc333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\imgui">
+      <UniqueIdentifier>{ffcb1ea7-b616-4f5e-803c-265df389a4fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\imgui\backend">
+      <UniqueIdentifier>{930d5b5a-8f5e-4f3b-b3c3-fadeb501b772}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -46,25 +49,25 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\imgui.cpp">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\imgui_demo.cpp">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\imgui_draw.cpp">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\imgui_tables.cpp">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\imgui_widgets.cpp">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\backend\imgui_impl_sdl2.cpp">
-      <Filter>Resource Files\imgui\backend</Filter>
+      <Filter>Libraries\imgui\backend</Filter>
     </ClCompile>
     <ClCompile Include="..\External Libraries\imgui\backend\imgui_impl_sdlrenderer2.cpp">
-      <Filter>Resource Files\imgui\backend</Filter>
+      <Filter>Libraries\imgui\backend</Filter>
     </ClCompile>
     <ClCompile Include="Collisions.cpp">
       <Filter>Source Files\Components</Filter>
@@ -105,28 +108,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\External Libraries\imgui\imconfig.h">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\imgui.h">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\imgui_internal.h">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\imstb_rectpack.h">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\imstb_textedit.h">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\imstb_truetype.h">
-      <Filter>Resource Files\imgui</Filter>
+      <Filter>Libraries\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\backend\imgui_impl_sdl2.h">
-      <Filter>Resource Files\imgui\backend</Filter>
+      <Filter>Libraries\imgui\backend</Filter>
     </ClInclude>
     <ClInclude Include="..\External Libraries\imgui\backend\imgui_impl_sdlrenderer2.h">
-      <Filter>Resource Files\imgui\backend</Filter>
+      <Filter>Libraries\imgui\backend</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Header Files\Components</Filter>
