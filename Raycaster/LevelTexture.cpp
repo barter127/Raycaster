@@ -7,10 +7,7 @@
 
 LevelTexture::LevelTexture(SDL_Renderer* renderer) : m_renderer(renderer) {}
 
-LevelTexture::~LevelTexture()
-{
-
-}
+LevelTexture::~LevelTexture() {}
 
 bool LevelTexture::LoadFromFile(std::string path)
 {
@@ -28,6 +25,8 @@ bool LevelTexture::LoadFromFile(std::string path)
 	m_width = m_surface->w;
 	m_height = m_surface->h;
 
+	CacheOptimiseLayout();
+
 	return true;
 }
 
@@ -42,4 +41,17 @@ void LevelTexture::Free()
 	{
 		SDL_FreeSurface(m_surface);
 	}
+}
+
+void LevelTexture::CacheOptimiseLayout()
+{
+	char* pixels = (char*)m_surface->pixels;
+	int pitch = m_surface->pitch;
+	int bpp = m_surface->format->BytesPerPixel;
+
+	// Swap texture X/Y since they'll be used as vertical stripes.
+	for (size_t x = 0; x < m_width; x++)
+		for (size_t y = 0; y < x; y++)
+			for (int i = 0; i < bpp; ++i)
+				std::swap(pixels[y * pitch + x * bpp], pixels[x * pitch + y * bpp]);
 }

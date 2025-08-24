@@ -38,6 +38,11 @@ public:
 	*/
 	void Free();
 
+	/**
+	* \brief Reorders format of pixel array so texture data is stored in vertical lines instead of horizontal scan lines.
+	*/
+	void CacheOptimiseLayout();
+
 	inline void* GetPixelData() { return m_surface->pixels; }
 
 	inline SDL_Surface* GetSurface() { return m_surface; }
