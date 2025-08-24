@@ -44,11 +44,6 @@ int main(int argc, char* argv[])
 			// FPS Locking.
 			g_nextGameTick += FRAME_DELAY;
 			int frameTime = g_nextGameTick - SDL_GetTicks();
-
-			if (frameTime <= 0)
-			{
-				std::cout << "We are <60 FPS." << std::endl;
-			}
 		}
 	}
 
