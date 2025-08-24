@@ -3,32 +3,10 @@
 #include <iostream>
 #include <fstream>   
 
-std::string LMap::g_fileType = ".hlvl";
+std::string LMap::m_fileType = ".hlvl";
 
-LMap::LMap() 
-    : m_width(0),
-      m_height(0)
-{}
-
-LMap::LMap(LMap& other) 
-    : m_lvlArray(other.m_lvlArray)
-{}
-
-LMap::~LMap() {}
-
-// Helper funcs.
-void ReadWallData(std::ifstream* file, LevelArray& lArray, int levelWidth, int levelHeight);
-void ReadFloorData(std::ifstream* file, FloorData& floorData);
-void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight);
-
-std::string LMap::CreateFile(std::string fileName)
-{
-    std::ofstream outfile("Levels/" + fileName + g_fileType);
-
-    // Create default data maps.
-    outfile << DEFAULT_MAP_WIDTH << " " << DEFAULT_MAP_HEIGHT << std::endl;
-    outfile << "Walls:" << std::endl;
-    outfile << R"(111111111111111111111111
+std::string LMap::m_defaultLevelArray = 
+R"(111111111111111111111111
 100000000000000000000001
 100000000000000000000001
 100000000000000000000001
@@ -52,31 +30,56 @@ std::string LMap::CreateFile(std::string fileName)
 100000000000000000000001
 100000000000000000000001
 111111111111111111111111)";
+
+LMap::LMap() 
+    : m_width(0),
+      m_height(0)
+{}
+
+LMap::LMap(LMap& other) 
+    : m_lvlArray(other.m_lvlArray)
+{}
+
+LMap::~LMap() {}
+
+// Helper funcs.
+void ReadWallData(std::ifstream* file, LevelArray& lArray, int levelWidth, int levelHeight);
+void ReadFloorData(std::ifstream* file, FloorData& floorData);
+void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight);
+
+std::string LMap::CreateFile(std::string fileName)
+{
+    std::ofstream outfile("Assets/Levels/" + fileName + m_fileType);
+
+    // Create default data maps.
+    outfile << DEFAULT_MAP_WIDTH << " " << DEFAULT_MAP_HEIGHT << std::endl;
+    outfile << "Walls:" << std::endl;
+    outfile << m_defaultLevelArray;
     outfile << std::endl << std::endl;
 
     outfile << "Objects:" << std::endl << std::endl;
 
     outfile << "Floor:" << std::endl;
         outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
-        outfile << "tex1Multiplier:" << std::endl << 0 << std::endl;
-        outfile << "tex2Multiplier:" << std::endl << 0 << std::endl;
+        outfile << "tex1Multiplier:" << std::endl << 2 << std::endl;
+        outfile << "tex2Multiplier:" << std::endl << 1 << std::endl;
     outfile << std::endl;
 
     outfile << "Ceiling:" << std::endl;
         outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
-        outfile << "tex1Multiplier:" << std::endl << 0 << std::endl;
-        outfile << "tex2Multiplier:" << std::endl << 0 << std::endl;
+        outfile << "tex1Multiplier:" << std::endl << 2 << std::endl;
+        outfile << "tex2Multiplier:" << std::endl << 1 << std::endl;
     outfile << std::endl;
 
     outfile.close();
 
     if (!outfile.good())
     {
-        std::cout << "[LevelFileSystem] Failed to write to file: " << fileName;
+        std::cout << "[LMap] Failed to write to file: " << fileName << std::endl;
         return "Failed";
     }
 
-    return "Levels/" + fileName + g_fileType;
+    return "Levels/" + fileName + m_fileType;
 }
 
 bool LMap::ReadFile(LMap& map, std::string path)

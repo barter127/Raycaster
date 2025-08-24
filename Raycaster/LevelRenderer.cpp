@@ -37,7 +37,7 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map)
     m_levelTextureArray[3] = earth;
     m_levelTextureArray[4] = water;
 
-    m_backBuffer = SDL_CreateRGBSurfaceWithFormat(0, windowData.width, windowData.height, 2, SDL_PIXELFORMAT_RGBA32);
+    m_backBuffer = SDL_CreateRGBSurfaceWithFormat(0, g_windowData.width, g_windowData.height, 2, SDL_PIXELFORMAT_RGBA32);
 
     m_map = map;
 }
@@ -82,10 +82,10 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
 {
     LevelArray lArray = m_map->GetLevelArray();
 
-    for (int x = 0; x < windowData.width; x++)
+    for (int x = 0; x < g_windowData.width; x++)
     {
         // Calculate ray position and direction.
-        float cameraX = 2 * x / float(windowData.width) - 1; // X coordinate in camera space.
+        float cameraX = 2 * x / float(g_windowData.width) - 1; // X coordinate in camera space.
         float rayDirX = direction.x + plane.x * cameraX;
         float rayDirY = direction.y + plane.y * cameraX;
 
@@ -157,13 +157,13 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
 
 
         // Calculate height of line to draw on screen.
-        int lineHeight = (int)(windowData.height / perpWallDist);
+        int lineHeight = (int)(g_windowData.height / perpWallDist);
 
         // Calculate lowest and highest pixel to fill in current stripe.
-        int drawStart = -lineHeight / 2 + windowData.height / 2;
+        int drawStart = -lineHeight / 2 + g_windowData.height / 2;
         if (drawStart < 0)drawStart = 0;
-        int drawEnd = lineHeight / 2 + windowData.height / 2;
-        if (drawEnd >= windowData.height)drawEnd = windowData.height - 1;
+        int drawEnd = lineHeight / 2 + g_windowData.height / 2;
+        if (drawEnd >= g_windowData.height)drawEnd = g_windowData.height - 1;
 
         Uint32 colour = 0;
 
@@ -187,7 +187,7 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
         // How much to increase the texture coordinate per screen pixel
         float step = 1.0f * texHeight / lineHeight;
         //Starting texture coordinate
-        float texPos = (drawStart - windowData.height / 2 + lineHeight / 2) * step;
+        float texPos = (drawStart - g_windowData.height / 2 + lineHeight / 2) * step;
         for (int y = drawStart; y < drawEnd; y++)
         {
             // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
@@ -213,7 +213,7 @@ void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector
     int texWidth = m_floorTexture->GetWidth();
     int texHeight = m_floorTexture->GetHeight();
 
-    for (int y = 0; y < windowData.height; y++)
+    for (int y = 0; y < g_windowData.height; y++)
     {
         // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
         float rayDirX0 = direction.x - plane.x;
@@ -222,10 +222,10 @@ void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector
         float rayDirY1 = direction.y + plane.y;
 
         // Current y position compared to the center of the screen (the horizon).
-        int p = y - windowData.height / 2;
+        int p = y - g_windowData.height / 2;
 
         // Vertical position of the camera.
-        float posZ = 0.5 * windowData.height;
+        float posZ = 0.5 * g_windowData.height;
 
         // Horizontal distance from the camera to the floor for the current row.
         // 0.5 is the z position exactly in the middle between floor and ceiling.
@@ -233,14 +233,14 @@ void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector
 
         // Calculate the real world step vector we have to add for each x (parallel to camera plane).
         // Adding step by step avoids multiplications with a weight in the inner loop.
-        float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / windowData.width;
-        float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / windowData.width;
+        float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / g_windowData.width;
+        float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / g_windowData.width;
 
         // Real world coordinates of the leftmost column. This will be updated as we step to the right.
         float floorX = position.x + rowDistance * rayDirX0;
         float floorY = position.y + rowDistance * rayDirY0;
 
-        for (int x = 0; x < windowData.width; ++x)
+        for (int x = 0; x < g_windowData.width; ++x)
         {
             // The cell coord is simply got from the integer parts of floorX and floorY.
             int cellX = int(floorX);
@@ -258,17 +258,21 @@ void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector
             assert(m_map->GetFloorData().multiplier1 > 0);
             assert(m_map->GetFloorData().multiplier2 > 0);
 
+            // Floor
             int checkerBoardPattern = (int(cellX + cellY)) % m_map->GetFloorData().multiplier1;
 
-            if (checkerBoardPattern < m_map->GetFloorData().multiplier2 && m_map->GetFloorData().isCheckered) colour = GetPixelColour(m_floorTexture, tx, ty);
-            else colour = GetPixelColour(m_levelTextureArray[1], tx, ty); // Arbitrary texture.
+            if (checkerBoardPattern < m_map->GetFloorData().multiplier2 && m_map->GetFloorData().isCheckered) colour = GetPixelColour(m_levelTextureArray[1], tx, ty);
+            else colour = GetPixelColour(m_floorTexture, tx, ty); // Arbitrary texture.
 
-            // Floor
             CopyPixel(m_backBuffer, m_floorTexture, colour, x, y);
 
             // Ceiling
-            colour = GetPixelColour(m_ceilingTexture, tx, ty);
-            CopyPixel(m_backBuffer, m_ceilingTexture, colour, x, windowData.height - y);
+            checkerBoardPattern = (int(cellX + cellY)) % m_map->GetCeilingData().multiplier1;
+
+            if (checkerBoardPattern < m_map->GetCeilingData().multiplier2 && m_map->GetCeilingData().isCheckered) colour = GetPixelColour(m_levelTextureArray[2], tx, ty);
+            else colour = GetPixelColour(m_ceilingTexture, tx, ty); // Arbitrary texture.
+
+            CopyPixel(m_backBuffer, m_ceilingTexture, colour, x, g_windowData.height - y);
         }
     }
 }

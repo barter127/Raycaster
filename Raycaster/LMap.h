@@ -51,7 +51,8 @@ public:
 
 
 private: // Read Only (Except From FileSystem).
-	static std::string g_fileType;
+	static std::string m_fileType;
+	static std::string m_defaultLevelArray;
 
 	LevelArray m_lvlArray;
 	FloorData m_floorData;

@@ -54,7 +54,7 @@ private:
 	FloorData m_ceilingData;
 
 	// Determine what UI panel should be shown currently.
-	bool m_saved = false;
+	bool m_saved = true;
 	bool m_creatingNewFile = false;
 	bool m_displayNewPanel = false;
 
@@ -65,7 +65,6 @@ private:
 		ImGuiFileBrowserFlags_SkipItemsCausingError;
 
 	ImGui::FileBrowser m_fileDialog = ImGui::FileBrowser(m_flags);
-
 };
 
 #endif

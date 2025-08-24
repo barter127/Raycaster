@@ -13,7 +13,6 @@ bool Update();
 void Render();
 
 SDL_Window* g_window = nullptr;
-
 SDL_Renderer* g_renderer = nullptr;
 
 Uint32 g_oldTime;
@@ -76,8 +75,8 @@ bool InitSDL()
 		g_window = SDL_CreateWindow("Raycaster",
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			windowData.width,
-			windowData.height,
+			g_windowData.width,
+			g_windowData.height,
 			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 
@@ -92,7 +91,7 @@ bool InitSDL()
 		std::cout << "[InitSDL] Created window." << std::endl;
 
 		g_renderer = SDL_CreateRenderer(g_window, -1,
-			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
 
 		if (g_renderer != nullptr)
 		{
@@ -149,9 +148,9 @@ bool Update()
 	case SDL_WINDOWEVENT:
 		if (g_event.window.event == SDL_WINDOWEVENT_RESIZED) 
 		{
-			windowData.width = g_event.window.data1;
-			windowData.height = g_event.window.data2;
-			SDL_SetWindowSize(g_window, windowData.width, windowData.height);
+			g_windowData.width = g_event.window.data1;
+			g_windowData.height = g_event.window.data2;
+			SDL_SetWindowSize(g_window, g_windowData.width, g_windowData.height);
 		}
 		break;
 	}
@@ -163,6 +162,8 @@ bool Update()
 
 	return false;
 }
+
+#include "imgui.h"
 
 void Render()
 {
