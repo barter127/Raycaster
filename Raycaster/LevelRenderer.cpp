@@ -206,72 +206,111 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
 
 void LevelRenderer::RenderCeilRoof(Vector2D position, Vector2D direction, Vector2D plane)
 {
-    // Make sure ceiling and floor has the same dimensions.
     assert(m_floorTexture->GetHeight() == m_ceilingTexture->GetHeight());
     assert(m_floorTexture->GetWidth() == m_ceilingTexture->GetWidth());
 
+    // Make sure ceiling and floor has the same dimensions.
     int texWidth = m_floorTexture->GetWidth();
     int texHeight = m_floorTexture->GetHeight();
+
+    FloorData cachedFloorData = m_map->GetFloorData();
+    FloorData cachedCeilData = m_map->GetCeilingData();
+
+    float rayDirX0;
+    float rayDirY0;
+    float rayDirX1;
+    float rayDirY1;
+
+    int p;
+
+    float posZ;
+    float rowDistance;
+
+    float floorStepX;
+    float floorStepY;
+
+    float floorX;
+    float floorY;
+
+    int cellX;
+    int cellY;
+
+    int tx;
+    int ty;
+
+    Uint32 colour;
 
     for (int y = 0; y < g_windowData.height; y++)
     {
         // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-        float rayDirX0 = direction.x - plane.x;
-        float rayDirY0 = direction.y - plane.y;
-        float rayDirX1 = direction.x + plane.x;
-        float rayDirY1 = direction.y + plane.y;
+        rayDirX0 = direction.x - plane.x;
+        rayDirY0 = direction.y - plane.y;
+        rayDirX1 = direction.x + plane.x;
+        rayDirY1 = direction.y + plane.y;
 
         // Current y position compared to the center of the screen (the horizon).
-        int p = y - g_windowData.height / 2;
+        p = y - g_windowData.height / 2;
 
         // Vertical position of the camera.
-        float posZ = 0.5 * g_windowData.height;
+        posZ = 0.5 * g_windowData.height;
 
         // Horizontal distance from the camera to the floor for the current row.
         // 0.5 is the z position exactly in the middle between floor and ceiling.
-        float rowDistance = posZ / p;
+        rowDistance = posZ / p;
 
         // Calculate the real world step vector we have to add for each x (parallel to camera plane).
         // Adding step by step avoids multiplications with a weight in the inner loop.
-        float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / g_windowData.width;
-        float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / g_windowData.width;
+        floorStepX = rowDistance * (rayDirX1 - rayDirX0) / g_windowData.width;
+        floorStepY = rowDistance * (rayDirY1 - rayDirY0) / g_windowData.width;
 
         // Real world coordinates of the leftmost column. This will be updated as we step to the right.
-        float floorX = position.x + rowDistance * rayDirX0;
-        float floorY = position.y + rowDistance * rayDirY0;
+        floorX = position.x + rowDistance * rayDirX0;
+        floorY = position.y + rowDistance * rayDirY0;
 
         for (int x = 0; x < g_windowData.width; ++x)
         {
             // The cell coord is simply got from the integer parts of floorX and floorY.
-            int cellX = int(floorX);
-            int cellY = int(floorY);
+            cellX = int(floorX);
+            cellY = int(floorY);
 
             // Get the texture coordinate from the fractional part.
-            int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
-            int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
+            tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
+            ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
 
             floorX += floorStepX;
             floorY += floorStepY;
 
-            Uint32 colour = 0;
-
-            assert(m_map->GetFloorData().multiplier1 > 0);
-            assert(m_map->GetFloorData().multiplier2 > 0);
+            colour = 0;
 
             // Floor
-            int checkerBoardPattern = (int(cellX + cellY)) % m_map->GetFloorData().multiplier1;
+            if (cachedFloorData.isCheckered)
+            {
+                int checkerBoardPattern = (int(cellX + cellY)) % cachedFloorData.multiplier1;
 
-            if (checkerBoardPattern < m_map->GetFloorData().multiplier2 && m_map->GetFloorData().isCheckered) colour = GetPixelColour(m_levelTextureArray[1], tx, ty);
-            else colour = GetPixelColour(m_floorTexture, tx, ty); // Arbitrary texture.
+                if (checkerBoardPattern < cachedFloorData.multiplier2) colour = GetPixelColour(m_levelTextureArray[1], tx, ty);
+                else colour = GetPixelColour(m_floorTexture, tx, ty); // Arbitrary texture.
+            }
+            else
+            {
+                colour = GetPixelColour(m_floorTexture, tx, ty);
+            }
 
             CopyPixel(m_backBuffer, m_floorTexture, colour, x, y);
 
+            if (cachedCeilData.isCheckered)
+            {
+                int checkerBoardPattern = (int(cellX + cellY)) % cachedCeilData.multiplier1;
+
+                if (checkerBoardPattern < cachedCeilData.multiplier2) colour = GetPixelColour(m_levelTextureArray[1], tx, ty);
+                else colour = GetPixelColour(m_floorTexture, tx, ty); // Arbitrary texture.
+            }
+            else
+            {
+                colour = GetPixelColour(m_floorTexture, tx, ty);
+            }
+
             // Ceiling
-            checkerBoardPattern = (int(cellX + cellY)) % m_map->GetCeilingData().multiplier1;
-
-            if (checkerBoardPattern < m_map->GetCeilingData().multiplier2 && m_map->GetCeilingData().isCheckered) colour = GetPixelColour(m_levelTextureArray[2], tx, ty);
-            else colour = GetPixelColour(m_ceilingTexture, tx, ty); // Arbitrary texture.
-
+            colour = GetPixelColour(m_ceilingTexture, tx, ty);
             CopyPixel(m_backBuffer, m_ceilingTexture, colour, x, g_windowData.height - y);
         }
     }
