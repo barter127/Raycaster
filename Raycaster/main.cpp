@@ -93,11 +93,6 @@ bool InitSDL()
 		g_renderer = SDL_CreateRenderer(g_window, -1,
 			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-		g_windowData.frontBuffer = SDL_CreateTexture(g_renderer, 
-			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, 
-			g_windowData.width, 
-			g_windowData.height);
-
 		if (g_renderer != nullptr)
 		{
 			// Initialise PNG loading.
