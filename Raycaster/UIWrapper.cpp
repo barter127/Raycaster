@@ -92,8 +92,6 @@ void UIWrapper::Render()
 	ImGui_ImplSDL2_NewFrame();
 	NewFrame();
 
-	HandleDocking();
-
 	Begin("Editor");
 	{
 		m_fileDialog.Display();
@@ -280,72 +278,14 @@ void UIWrapper::Render()
 	}
 	End();
 
-	// Static to preserve across frames
-	static void* pixels = nullptr;
-	static SDL_Texture* texture = nullptr;
-	static int lastWidth = 0, lastHeight = 0;
-
-	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	Begin("Viewport");
-	{
-		int width, height;
-		SDL_GetRendererOutputSize(m_renderer, &width, &height);
-		SDL_PixelFormatEnum format = SDL_PIXELFORMAT_ARGB8888;
-		int pitch = width * SDL_BYTESPERPIXEL(format);
-		int bitDepth = 32;
-
-		// Allocate pixel buffer only if dimensions change
-		if (width != lastWidth || height != lastHeight || !pixels) {
-			if (pixels) free(pixels);
-			if (texture) SDL_DestroyTexture(texture);
-
-			pixels = malloc(height * pitch);
-			if (!pixels) {
-				std::cerr << "[UIWrapper] Failed to allocate pixel array" << std::endl;
-			}
-
-			lastWidth = width;
-			lastHeight = height;
-		}
-
-		// Read pixels once per frame
-		if (SDL_RenderReadPixels(m_renderer, NULL, format, pixels, pitch) != 0) {
-			std::cerr << "[UIWrapper] Failed to read frontbuffer pixel data" << std::endl;
-		}
-
-		// Create surface from pixel buffer
-		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
-			pixels, width, height, bitDepth, pitch, format);
-
-		if (!surface) {
-			std::cerr << "[UIWrapper] Failed to create frontbuffer surface" << std::endl;
-		}
-
-		// Create texture only once or if dimensions changed
-		if (!texture) {
-			texture = SDL_CreateTextureFromSurface(m_renderer, surface);
-		}
-		else {
-			// Update existing texture instead of recreating
-			SDL_UpdateTexture(texture, NULL, pixels, pitch);
-		}
-
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::Image((ImTextureID)(intptr_t)texture, viewport->Size);
-
-		SDL_FreeSurface(surface);
-	}
-	PopStyleVar(3);
-	End();
-
 
 	ImGui::Render();
-	SDL_RenderSetScale(m_renderer, m_io.DisplayFramebufferScale.x, m_io.DisplayFramebufferScale.y);
+	//SDL_RenderSetScale(m_renderer, m_io.DisplayFramebufferScale.x, m_io.DisplayFramebufferScale.y);
 	SDL_SetRenderDrawColor(m_renderer, (Uint8)(s_clearColour.x * 255), (Uint8)(s_clearColour.y * 255), (Uint8)(s_clearColour.z * 255), (Uint8)(s_clearColour.w * 255));
 	ImGui_ImplSDLRenderer2_RenderDrawData(GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
+
+	//SDL_DestroyTexture(texture);
 }
 
 bool dockspaceBuilt = false;

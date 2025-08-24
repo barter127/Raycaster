@@ -11,6 +11,10 @@
 #include "Collisions.h"
 #include "UIWrapper.h"
 
+#include "WindowData.h"
+
+#include "BenchMarkTimer.h"
+
 std::vector<BoxCollider> levelColliders;
 
 Level1::Level1(SDL_Window* window, SDL_Renderer* renderer) 
@@ -48,9 +52,14 @@ void Level1::Update(float deltaTime, SDL_Event event)
 
 void Level1::Render()
 {
+    BenchmarkTimer timer;
+
     m_levelRender->Render(m_player->m_position, m_player->m_direction, m_player->m_plane);
     m_player->Render();
+
     m_ui->Render();
+
+    std::cout << timer.Elapsed() << std::endl;
 }
 
 void Level1::CreateMapColliders()

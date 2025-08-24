@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
 			// FPS Locking.
 			g_nextGameTick += FRAME_DELAY;
-			int frameTime = g_nextGameTick + g_oldTime - SDL_GetTicks();
+			int frameTime = g_nextGameTick - SDL_GetTicks();
 
 			if (frameTime <= 0)
 			{
@@ -91,7 +91,12 @@ bool InitSDL()
 		std::cout << "[InitSDL] Created window." << std::endl;
 
 		g_renderer = SDL_CreateRenderer(g_window, -1,
-			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+		g_windowData.frontBuffer = SDL_CreateTexture(g_renderer, 
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, 
+			g_windowData.width, 
+			g_windowData.height);
 
 		if (g_renderer != nullptr)
 		{
@@ -172,6 +177,8 @@ void Render()
 	SDL_RenderClear(g_renderer);
 
 	g_screenManager->Render();
+
+	SDL_RenderPresent(g_renderer);
 
 	// No RenderPresent as viewport rendering is handled in UIWrapper.
 }
