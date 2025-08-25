@@ -18,6 +18,8 @@ public:
 
 	void Render(Vector2D position, Vector2D direction, Vector2D plane);
 
+	void AddTexture(std::string path);
+
 private:
 	/**
 	 * \brief Render walls to backbuffer as described by the map layout.

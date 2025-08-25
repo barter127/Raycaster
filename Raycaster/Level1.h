@@ -13,6 +13,7 @@
 class Player;
 class LevelRenderer;
 class UIWrapper;
+class BoxCollider;
 
 class Level1 : Screen
 {
@@ -32,6 +33,10 @@ private:
 	LevelRenderer* m_levelRender;
 	Player* m_player;
 	LMap m_map;
+
+	std::vector<BoxCollider> m_levelColliders;
+
+	int m_textureAmount = 5;
 
 	// std::vector<Texture2D*> m_activeTextures;
 };

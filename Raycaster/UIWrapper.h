@@ -27,6 +27,9 @@ public:
 	void Render();
 	void Update(float deltaTime,  SDL_Event event);
 	
+	void AddTexture(std::string path);
+	// void RemoveTexture(std::string path);
+
 private:
 	void HandleDocking();
 
@@ -59,6 +62,7 @@ private:
 	bool m_creatingNewFile = false;
 	bool m_displayNewPanel = false;
 
+	SDL_Texture* m_viewportTexture = nullptr;
 
 	// File broswer.
 	ImGuiFileBrowserFlags m_flags = ImGuiFileBrowserFlags_CloseOnEsc | 

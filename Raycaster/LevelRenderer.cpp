@@ -64,6 +64,13 @@ void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane
     SDL_DestroyTexture(m_frontBuffer);
 }
 
+void LevelRenderer::AddTexture(std::string path)
+{
+    LevelTexture* tempTexture = new LevelTexture(m_renderer);
+    tempTexture->LoadFromFile(path);
+    m_levelTextureArray.push_back(tempTexture);
+}
+
 void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D plane)
 {
     LevelArray lArray = m_map->GetLevelArray();

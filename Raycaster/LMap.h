@@ -38,6 +38,7 @@ public:
 	inline int GetHeight() { return m_height; }
 
 	inline std::vector<std::string> GetTexturePaths() { return m_texturePaths; }
+	inline void AddTexturePath(std::string path) { m_texturePaths.push_back(path); }
 
 	static std::string CreateFile(std::string fileName);
 

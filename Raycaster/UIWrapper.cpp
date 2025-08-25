@@ -71,12 +71,6 @@ UIWrapper::~UIWrapper()
 	DestroyContext();
 }
 
-void UIWrapper::Update(float deltaTime, SDL_Event event)
-{
-	ImGui_ImplSDL2_ProcessEvent(&event);
-}
-
-SDL_Texture* texture;
 
 void UIWrapper::Render()
 {
@@ -133,9 +127,7 @@ void UIWrapper::Render()
 
 			else
 			{
-				Texture2D* wallTexture = new Texture2D(m_renderer);
-				wallTexture->LoadFromFile(m_fileDialog.GetSelected().string());
-				m_paletteTextures.push_back(wallTexture);
+				m_map->AddTexturePath(m_fileDialog.GetSelected().string());
 			}
 
 			std::cout << "[UIWrapper] Selected file " << m_fileDialog.GetSelected().string() << std::endl;
@@ -261,14 +253,14 @@ void UIWrapper::Render()
 			std::cerr << "[UIWrapper] Failed to create frontbuffer surface" << std::endl;
 		}
 
-		texture = SDL_CreateTextureFromSurface(m_renderer, surface);
-		if (!texture)
+		m_viewportTexture = SDL_CreateTextureFromSurface(m_renderer, surface);
+		if (!m_viewportTexture)
 		{
 			std::cerr << "[UIWrapper] Failed to create frontbuffer texture" << std::endl;
 		}
 
 		// Display buffer as ImGui Image.
-		ImGui::Image((ImTextureID)(intptr_t)texture, viewport->Size);
+		ImGui::Image((ImTextureID)(intptr_t)m_viewportTexture, viewport->Size);
 
 		SDL_FreeSurface(surface);
 		free(pixels);  // Important to free manually allocated memory
@@ -282,7 +274,19 @@ void UIWrapper::Render()
 	ImGui_ImplSDLRenderer2_RenderDrawData(GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
 
-	SDL_DestroyTexture(texture);
+	SDL_DestroyTexture(m_viewportTexture);
+}
+
+void UIWrapper::Update(float deltaTime, SDL_Event event)
+{
+	ImGui_ImplSDL2_ProcessEvent(&event);
+}
+
+void UIWrapper::AddTexture(std::string path)
+{
+	Texture2D* tempTexture = new Texture2D(m_renderer);
+	tempTexture->LoadFromFile(path);
+	m_paletteTextures.push_back(tempTexture);
 }
 
 bool dockspaceBuilt = false;
