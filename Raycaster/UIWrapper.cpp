@@ -17,7 +17,10 @@ ImVec4 UIWrapper::s_clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 SDL_Texture* wallTexture;
 
-UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_window(window), m_renderer(renderer), m_map(map)
+UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : 
+	m_window(window), 
+	m_renderer(renderer), 
+	m_map(map)
 {
 	IMGUI_CHECKVERSION();
 
@@ -53,25 +56,12 @@ UIWrapper::UIWrapper(SDL_Window* window, SDL_Renderer* renderer, LMap* map) : m_
 	m_mapWidth = m_map->GetWidth();
 	m_mapHeight = m_map->GetHeight();
 
-	Texture2D* wallTexture = new Texture2D(m_renderer);
-	wallTexture->LoadFromFile("Assets/Brick_Wall_64x64.png");
-	m_paletteTextures.push_back(wallTexture);
-
-	Texture2D* rockTexture = new Texture2D(m_renderer);
-	rockTexture->LoadFromFile("Assets/Green_Wall_Rocks_64x64.png");
-	m_paletteTextures.push_back(rockTexture);
-
-	Texture2D* mossTexture = new Texture2D(m_renderer);
-	mossTexture->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
-	m_paletteTextures.push_back(mossTexture);
-
-	Texture2D* earthTexture = new Texture2D(m_renderer);
-	earthTexture->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
-	m_paletteTextures.push_back(earthTexture);
-
-	Texture2D* waterTexture = new Texture2D(m_renderer);
-	waterTexture->LoadFromFile("Assets/Water_64x64.png");
-	m_paletteTextures.push_back(waterTexture);
+	for (std::string path : m_map->GetTexturePaths())
+	{
+		Texture2D* tempTexture = new Texture2D(m_renderer);
+		tempTexture->LoadFromFile(path);
+		m_paletteTextures.push_back(tempTexture);
+	}
 }
 
 UIWrapper::~UIWrapper()
