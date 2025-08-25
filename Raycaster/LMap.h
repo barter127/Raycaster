@@ -6,10 +6,11 @@
 #include <vector>
 #include <string>
 
-struct FloorData {
-bool isCheckered = 0;
-int multiplier1 = 1;
-int multiplier2 = 1;
+struct FloorData 
+{
+	bool isCheckered = 0;
+	int multiplier1 = 1;
+	int multiplier2 = 1;
 };
 
 #define DEFAULT_MAP_WIDTH 24
@@ -24,13 +25,6 @@ public:
 	LMap(LMap& other);
 	~LMap();
 
-	LMap& operator=(const LMap& other) {
-		if (this != &other) {
-			m_lvlArray = other.m_lvlArray;
-		}
-		return *this;
-	}
-
 	inline LevelArray GetLevelArray() { return m_lvlArray; }
 	void UpdateLevelArray(LevelArray inputLvlArray) { m_lvlArray = inputLvlArray; }
 
@@ -43,16 +37,19 @@ public:
 	inline int GetWidth() { return m_width; }
 	inline int GetHeight() { return m_height; }
 
+	inline std::vector<std::string> GetTexturePaths() { return m_texturePaths; }
+
 	static std::string CreateFile(std::string fileName);
 
 	static bool ReadFile(LMap& map, std::string fileName);
 
 	static bool SaveFile(const LMap& map, std::string fileName);
 
-
-private: // Read Only (Except From FileSystem).
+private: // Vars should be Read Only.
 	static std::string m_fileType;
 	static std::string m_defaultLevelArray;
+
+	std::vector<std::string> m_texturePaths;
 
 	LevelArray m_lvlArray;
 	FloorData m_floorData;

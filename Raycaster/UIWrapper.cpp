@@ -180,53 +180,8 @@ void UIWrapper::Render()
 			}
 		}
 
-		Text("Tile Map");
-		{
-			static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit
-				| ImGuiTableFlags_PadOuterX;
+		TileMap();
 
-			BeginTable("Tile Map Table", m_mapWidth, tableFlags);
-
-				std::string label = ""; // To prevent reinitialisation.
-				ImTextureID texID = 0;
-				ImVec2 buttonSize = ImVec2(15.0f, 15.0f);
-
-				LevelArray lvlMap = m_map->GetLevelArray();
-
-				for (int row = 0; row < m_mapWidth; row++)
-				{
-					TableNextRow();
-					for (int column = 0; column < m_mapHeight; column++)
-					{
-						TableSetColumnIndex(column);
-
-						label = "##TileMapButton " + std::to_string(row) + ", " + std::to_string(column);
-
-						int textureIndex = lvlMap[column][row] - 1;
-
-						if (textureIndex >= 0)
-						{
-							texID = (ImTextureID)(intptr_t)m_paletteTextures[textureIndex]->GetTexture();
-
-							if (ImageButton(label.c_str(), texID, buttonSize))
-							{
-								lvlMap[column][row]= m_selectedTexture;
-							}
-						}
-						else
-						{
-							if (Button(label.c_str(), buttonSize))
-							{
-								lvlMap[column][row]= m_selectedTexture;
-							}
-						}
-					}
-				}
-
-				m_map->UpdateLevelArray(lvlMap);
-
-			EndTable();
-		}
 		PopStyleVar();
 		PopStyleVar();
 		NewLine();
@@ -328,9 +283,8 @@ void UIWrapper::Render()
 		SDL_FreeSurface(surface);
 		free(pixels);  // Important to free manually allocated memory
 	}
-	PopStyleVar(3);
-
 	End();
+	PopStyleVar(3);
 
 	ImGui::Render();
 	SDL_RenderSetScale(m_renderer, m_io.DisplayFramebufferScale.x, m_io.DisplayFramebufferScale.y);
@@ -442,4 +396,57 @@ void UIWrapper::NewHLVLPanel(char* fileName)
 	}
 
 	End();
+}
+
+void UIWrapper::TileMap()
+{
+	Text("Tile Map");
+	{
+		static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingFixedFit
+			| ImGuiTableFlags_PadOuterX;
+
+		if (m_mapWidth <= 0 || m_mapHeight <= 0) return;
+
+		BeginTable("Tile Map Table", m_mapWidth, tableFlags);
+
+		std::string label = ""; // To prevent reinitialisation.
+		ImTextureID texID = 0;
+		ImVec2 buttonSize = ImVec2(15.0f, 15.0f);
+
+		LevelArray lvlMap = m_map->GetLevelArray();
+
+		for (int row = 0; row < m_mapWidth; row++)
+		{
+			TableNextRow();
+			for (int column = 0; column < m_mapHeight; column++)
+			{
+				TableSetColumnIndex(column);
+
+				label = "##TileMapButton " + std::to_string(row) + ", " + std::to_string(column);
+
+				int textureIndex = lvlMap[column][row] - 1;
+
+				if (textureIndex >= 0)
+				{
+					texID = (ImTextureID)(intptr_t)m_paletteTextures[textureIndex]->GetTexture();
+
+					if (ImageButton(label.c_str(), texID, buttonSize))
+					{
+						lvlMap[column][row] = m_selectedTexture;
+					}
+				}
+				else
+				{
+					if (Button(label.c_str(), buttonSize))
+					{
+						lvlMap[column][row] = m_selectedTexture;
+					}
+				}
+			}
+		}
+
+		m_map->UpdateLevelArray(lvlMap);
+
+		EndTable();
+	}
 }

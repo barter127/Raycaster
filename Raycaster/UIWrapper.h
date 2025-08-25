@@ -31,6 +31,7 @@ private:
 	void HandleDocking();
 
 	void NewHLVLPanel(char* fileName);
+	void TileMap();
 
 	// Rendering and IO.
 	SDL_Renderer* m_renderer;

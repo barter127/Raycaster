@@ -3,6 +3,7 @@
 #ifndef _LEVEL_RENDERER_H
 #define _LEVEL_RENDERER_H
 
+#include <vector>
 #include "SDL.h"
 #include "LMap.h"
 
@@ -23,16 +24,18 @@ private:
 	 * 
 	 * Uses the indexes in the map data to determine the texture that will be rendererd. If texture is an invalid index wall is drawn as bright purple.
 	 *
-	 * Sets width and height member vars.
+	 * \param Position Vector of the camera.
+	 * \param Direction Vector the camera is facing.
+	 * \param Camera Plane Vector for the size of the vision cone.
 	 */
 	void RenderWalls(Vector2D position, Vector2D direction, Vector2D plane);
 
 	/**
 	 * \brief Render ceiling and roof using the set ceiling and floor textures.
 	 *
-	 * 
-	 *
-	 * Sets width and height member vars.
+	 * \param Position Vector of the camera.
+	 * \param Direction Vector the camera is facing.
+	 * \param Camera Plane Vector for the size of the vision cone.
 	 */
 	void RenderCeilRoof(Vector2D position, Vector2D direction, Vector2D plane);
 
@@ -41,7 +44,7 @@ private:
 
 	SDL_Renderer* m_renderer;
 
-	// Screen buffers.
+	// Screen Buffers.
 	SDL_Surface* m_backBuffer = nullptr;
 	SDL_Texture* m_frontBuffer = nullptr;
 
@@ -49,7 +52,7 @@ private:
 	LevelTexture* m_floorTexture = nullptr; // Could expand to an array of surfaces.
 	LevelTexture* m_ceilingTexture = nullptr; // Could expand to an array of surfaces.
 
-	LevelTexture* m_levelTextureArray[5];
+	std::vector<LevelTexture*> m_levelTextureArray;
 
 	LMap* m_map;
 };

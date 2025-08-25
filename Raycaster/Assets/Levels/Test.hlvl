@@ -1,4 +1,12 @@
 24 24
+Textures:
+5
+Assets/Brick_Wall_64x64.png
+Assets/Green_Wall_Rocks_64x64.png
+Assets/Dirty_Mossy_Tiles_64x64.png
+Assets/Dehydrated_Earth_64x64.png
+Assets/Water_64x64.png
+
 Walls:
 111111111111111111111111  
 100000000000000000000001  

@@ -36,23 +36,37 @@ LMap::LMap()
       m_height(0)
 {}
 
-LMap::LMap(LMap& other) 
-    : m_lvlArray(other.m_lvlArray)
-{}
-
 LMap::~LMap() {}
 
 // Helper funcs.
 void ReadWallData(std::ifstream* file, LevelArray& lArray, int levelWidth, int levelHeight);
 void ReadFloorData(std::ifstream* file, FloorData& floorData);
 void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight);
+void ReadTexturePaths(std::ifstream* file, std::vector<std::string>& pathsVector);
 
 std::string LMap::CreateFile(std::string fileName)
 {
     std::ofstream outfile("Assets/Levels/" + fileName + m_fileType);
 
-    // Create default data maps.
+    if (!outfile)
+    {
+        std::cout << "[LMap] Failed to write to file: " << fileName << std::endl;
+        outfile.close();
+        return "Failed";
+    }
+
     outfile << DEFAULT_MAP_WIDTH << " " << DEFAULT_MAP_HEIGHT << std::endl;
+
+    outfile << "Textures:" << std::endl;
+    outfile << 5 << std::endl;
+    outfile << "Assets/Brick_Wall_64x64.png" << std::endl;;
+    outfile << "Assets/Green_Wall_Rocks_64x64.png" << std::endl;;
+    outfile << "Assets/Dirty_Mossy_Tiles_64x64.png" << std::endl;;
+    outfile << "Assets/Dehydrated_Earth_64x64.png" << std::endl;;
+    outfile << "Assets/Water_64x64.png" << std::endl;
+    outfile << std::endl;
+
+    // Create default data maps.
     outfile << "Walls:" << std::endl;
     outfile << m_defaultLevelArray;
     outfile << std::endl << std::endl;
@@ -60,24 +74,18 @@ std::string LMap::CreateFile(std::string fileName)
     outfile << "Objects:" << std::endl << std::endl;
 
     outfile << "Floor:" << std::endl;
-        outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
-        outfile << "tex1Multiplier:" << std::endl << 2 << std::endl;
-        outfile << "tex2Multiplier:" << std::endl << 1 << std::endl;
+    outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
+    outfile << "tex1Multiplier:" << std::endl << 2 << std::endl;
+    outfile << "tex2Multiplier:" << std::endl << 1 << std::endl;
     outfile << std::endl;
 
     outfile << "Ceiling:" << std::endl;
-        outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
-        outfile << "tex1Multiplier:" << std::endl << 2 << std::endl;
-        outfile << "tex2Multiplier:" << std::endl << 1 << std::endl;
+    outfile << "FloorCheckered:" << std::endl << 0 << std::endl;
+    outfile << "tex1Multiplier:" << std::endl << 2 << std::endl;
+    outfile << "tex2Multiplier:" << std::endl << 1 << std::endl;
     outfile << std::endl;
 
     outfile.close();
-
-    if (!outfile.good())
-    {
-        std::cout << "[LMap] Failed to write to file: " << fileName << std::endl;
-        return "Failed";
-    }
 
     return "Levels/" + fileName + m_fileType;
 }
@@ -103,7 +111,12 @@ bool LMap::ReadFile(LMap& map, std::string path)
 
     while (std::getline(file, line))
     {
-        if (line == "Walls:")
+        if (line == "Textures:")
+        {
+            ReadTexturePaths(&file, map.m_texturePaths);
+        }
+
+        else if (line == "Walls:")
         {
             ReadWallData(&file, map.m_lvlArray, map.m_width, map.m_height);
         }
@@ -230,4 +243,21 @@ void ReadFloorData(std::ifstream* file, FloorData& floorData)
 void ReadObjectData(std::ifstream* file, int levelWidth, int levelHeight)
 {
 
+}
+
+void ReadTexturePaths(std::ifstream* file, std::vector<std::string>& pathsVector)
+{
+    std::string line;
+
+    std::getline(*file, line);
+
+    // This assumes the value is an int and is DANGEROUS!
+    int textureAmount = stoi(line);
+    pathsVector.reserve(textureAmount);
+
+    for (int i = 0; i < textureAmount; i++)
+    {
+        std::getline(*file, line);
+        pathsVector.push_back(line);
+    }
 }

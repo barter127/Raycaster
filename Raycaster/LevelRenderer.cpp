@@ -10,36 +10,24 @@
 LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map) 
     : m_renderer(renderer)
 {
+    m_map = map;
+
+    std::vector<std::string> texturePaths = m_map->GetTexturePaths();
+
+    for (std::string path : texturePaths)
+    {
+        LevelTexture* tempTexture = new LevelTexture(m_renderer);
+        tempTexture->LoadFromFile(path);
+        m_levelTextureArray.push_back(tempTexture);
+    }
+
     m_floorTexture = new LevelTexture(m_renderer);
     m_floorTexture->LoadFromFile("Assets/Dirt_Road_64x64.png");
 
     m_ceilingTexture = new LevelTexture(m_renderer);
     m_ceilingTexture->LoadFromFile("Assets/Wooden_Floor_Horizontal_64x64.png");
 
-    LevelTexture* wall = new LevelTexture(m_renderer);
-    wall->LoadFromFile("Assets/Brick_Wall_64x64.png");
-
-    LevelTexture* metal = new LevelTexture(m_renderer);
-    metal->LoadFromFile("Assets/Green_Wall_Rocks_64x64.png");
-
-    LevelTexture* moss = new LevelTexture(m_renderer);
-    moss->LoadFromFile("Assets/Dirty_Mossy_Tiles_64x64.png");
-
-    LevelTexture* earth = new LevelTexture(m_renderer);
-    earth->LoadFromFile("Assets/Dehydrated_Earth_64x64.png");
-
-    LevelTexture* water = new LevelTexture(m_renderer);
-    water->LoadFromFile("Assets/Water_64x64.png");
-
-    m_levelTextureArray[0] = wall;
-    m_levelTextureArray[1] = metal;
-    m_levelTextureArray[2] = moss;
-    m_levelTextureArray[3] = earth;
-    m_levelTextureArray[4] = water;
-
     m_backBuffer = SDL_CreateRGBSurfaceWithFormat(0, g_windowData.width, g_windowData.height, 2, SDL_PIXELFORMAT_RGBA32);
-
-    m_map = map;
 }
 
 LevelRenderer::~LevelRenderer()
@@ -51,8 +39,6 @@ LevelRenderer::~LevelRenderer()
     delete m_ceilingTexture;
     m_ceilingTexture = nullptr;
     m_ceilingTexture->Free();
-
-    delete[] m_levelTextureArray;
 }
 
 void LevelRenderer::Render(Vector2D position, Vector2D direction, Vector2D plane)
