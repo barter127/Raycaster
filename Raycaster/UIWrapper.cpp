@@ -113,7 +113,6 @@ void UIWrapper::Render()
 				return;
 			}
 
-
 			if (m_fileDialog.GetSelected().extension() == ".hlvl")
 			{
 				LMap::ReadFile(*m_map, m_fileDialog.GetSelected().string());
@@ -138,83 +137,18 @@ void UIWrapper::Render()
 
 		PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.75f, 0.75f));
 		PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
-		Text("Palette");
-		{
-			ImVec2 buttonSize = ImVec2(20.0f, 20.0f);
-			for (int i = 0; i < m_paletteTextures.size(); i++)
-			{
-				std::string label = "##Palette" + std::to_string(i);
-				ImTextureID texID = (ImTextureID)(intptr_t)m_paletteTextures[i]->GetTexture();
 
-				if (ImageButton(label.c_str(), texID, buttonSize))
-				{
-					m_selectedTexture = ++i;
-				}
-				
-				if (i < m_paletteTextures.size() - 1) SameLine();
-			}
-
-			SameLine();
-			if (Button("Add", ImVec2(30, 20)))
-			{
-				m_fileDialog.Open();
-				m_fileDialog.SetDirectory("Assets");
-			}
-		}
-
+		PaletteWidgets();
 		TileMap();
 
-		PopStyleVar();
-		PopStyleVar();
+		PopStyleVar(2);
 		NewLine();
 
-		Text("Floor");
-		{
-			m_floorData = m_map->GetFloorData();
-
-			// Might be worth keeping these as members of UIWrapper.
-			float dragIntSpeed = 0.1f;
-			int minDragValue = 1;
-			int maxDragValue = 10;
-
-			Text("Floor Is Checkered:   ");
-			SameLine();
-			Checkbox("##FloorCheckered", &m_floorData.isCheckered);
-
-			Text("Texture 1 Multiplier: ");
-			SameLine();
-			DragInt("##FloorTexMultiplier1", &m_floorData.multiplier1, dragIntSpeed, minDragValue, maxDragValue);
-
-			Text("Texture 2 Multiplier: ");
-			SameLine();
-			DragInt("##FloorTexMultiplier2", &m_floorData.multiplier2, dragIntSpeed, minDragValue, maxDragValue);
-
-			m_map->UpdateFloorData(m_floorData);
-		}
+		FloorWidgets();
 		NewLine();
 
-		Text("Ceiling");
-		{
-			m_ceilingData = m_map->GetCeilingData();
+		CeilingWidgets();
 
-			float dragIntSpeed = 0.1f;
-			int minDragValue = 1;
-			int maxDragValue = 10;
-
-			Text("Ceiling Is Checkered: ");
-			SameLine();
-			Checkbox("##CeilingCheckered", &m_ceilingData.isCheckered);
-
-			Text("Texture 1 Multiplier: ");
-			SameLine();
-			DragInt("##CeilingTexMultiplier1", &m_ceilingData.multiplier1, dragIntSpeed, minDragValue, maxDragValue);
-
-			Text("Texture 2 Multiplier: ");
-			SameLine();
-			DragInt("##CeilingTexMultiplier2", &m_ceilingData.multiplier2, dragIntSpeed, minDragValue, maxDragValue);
-
-			m_map->UpdateCeilingData(m_ceilingData);
-		}
 		NewLine();
 	}
 	End();
@@ -222,50 +156,7 @@ void UIWrapper::Render()
 	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	Begin("Viewport");
-	{
-		int width, height;
-		SDL_GetRendererOutputSize(m_renderer, &width, &height);
-		SDL_PixelFormatEnum format = SDL_PIXELFORMAT_ARGB8888;
-		int pitch = width * SDL_BYTESPERPIXEL(format);
-		int bitDepth = 32;
-
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-		void* pixels = malloc(height * pitch);
-		if (!pixels)
-		{
-			std::cerr << "[UIWrapper] Failed to read allocate pixel array" << std::endl;
-		}
-
-		// Copy the pixels from the frontbuffer to pixels array.
-		if (SDL_RenderReadPixels(m_renderer, NULL, 0, pixels, pitch) != 0)
-		{
-			std::cerr << "[UIWrapper] Failed to read frontbuffer pixel data" << std::endl;
-		}
-
-		// Create a surface from the front buffer data.
-		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
-			pixels, width, height, bitDepth, pitch, format);
-
-		if (!surface)
-		{
-			std::cerr << "[UIWrapper] Failed to create frontbuffer surface" << std::endl;
-		}
-
-		m_viewportTexture = SDL_CreateTextureFromSurface(m_renderer, surface);
-		if (!m_viewportTexture)
-		{
-			std::cerr << "[UIWrapper] Failed to create frontbuffer texture" << std::endl;
-		}
-
-		// Display buffer as ImGui Image.
-		ImGui::Image((ImTextureID)(intptr_t)m_viewportTexture, viewport->Size);
-
-		SDL_FreeSurface(surface);
-		free(pixels);  // Important to free manually allocated memory
-	}
-	End();
+	DrawViewport();
 	PopStyleVar(3);
 
 	ImGui::Render();
@@ -289,8 +180,6 @@ void UIWrapper::AddTexture(std::string path)
 	m_paletteTextures.push_back(tempTexture);
 }
 
-bool dockspaceBuilt = false;
-
 void UIWrapper::HandleDocking()
 {
 	ImGuiViewport* viewport = GetMainViewport();
@@ -312,9 +201,9 @@ void UIWrapper::HandleDocking()
 	ImGui::DockSpace(dockspaceId, ImVec2(0,0), ImGuiDockNodeFlags_NoTabBar);
 
 	// Could move this to initaliser.
-	if (!dockspaceBuilt)
+	if (!m_dockspaceBuilt)
 	{
-		dockspaceBuilt = true;
+		m_dockspaceBuilt = true;
 
 		ImGui::DockBuilderRemoveNode(dockspaceId);
 		ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
@@ -392,6 +281,42 @@ void UIWrapper::NewHLVLPanel(char* fileName)
 	End();
 }
 
+void UIWrapper::PaletteWidgets()
+{
+	Text("Palette");
+	{
+		static ImVec2 texButtonSize = ImVec2(20.0f, 20.0f);
+		for (int i = 0; i < m_paletteTextures.size(); i++)
+		{
+			std::string label = "##Palette" + std::to_string(i);
+			ImTextureID texID = (ImTextureID)(intptr_t)m_paletteTextures[i]->GetTexture();
+
+			if (ImageButton(label.c_str(), texID, texButtonSize))
+			{
+				m_selectedTexture = ++i;
+			}
+
+			if (i < m_paletteTextures.size() - 1) SameLine();
+		}
+
+		SameLine();
+
+		static ImVec2 addRemoveButtonSize = ImVec2(30, 20);
+		if (Button("Add", addRemoveButtonSize))
+		{
+			m_fileDialog.Open();
+			m_fileDialog.SetDirectory("Assets");
+		}
+
+		SameLine();
+
+		if (Button("Remove", addRemoveButtonSize))
+		{
+
+		}
+	}
+}
+
 void UIWrapper::TileMap()
 {
 	Text("Tile Map");
@@ -443,4 +368,105 @@ void UIWrapper::TileMap()
 
 		EndTable();
 	}
+}
+
+void UIWrapper::FloorWidgets()
+{
+	Text("Floor");
+	{
+		m_floorData = m_map->GetFloorData();
+
+		// Might be worth keeping these as members of UIWrapper.
+		float dragIntSpeed = 0.1f;
+		int minDragValue = 1;
+		int maxDragValue = 10;
+
+		Text("Floor Is Checkered:   ");
+		SameLine();
+		Checkbox("##FloorCheckered", &m_floorData.isCheckered);
+
+		Text("Texture 1 Multiplier: ");
+		SameLine();
+		DragInt("##FloorTexMultiplier1", &m_floorData.multiplier1, dragIntSpeed, minDragValue, maxDragValue);
+
+		Text("Texture 2 Multiplier: ");
+		SameLine();
+		DragInt("##FloorTexMultiplier2", &m_floorData.multiplier2, dragIntSpeed, minDragValue, maxDragValue);
+
+		m_map->UpdateFloorData(m_floorData);
+	}
+}
+
+void UIWrapper::CeilingWidgets()
+{
+	Text("Ceiling");
+	{
+		m_ceilingData = m_map->GetCeilingData();
+
+		float dragIntSpeed = 0.1f;
+		int minDragValue = 1;
+		int maxDragValue = 10;
+
+		Text("Ceiling Is Checkered: ");
+		SameLine();
+		Checkbox("##CeilingCheckered", &m_ceilingData.isCheckered);
+
+		Text("Texture 1 Multiplier: ");
+		SameLine();
+		DragInt("##CeilingTexMultiplier1", &m_ceilingData.multiplier1, dragIntSpeed, minDragValue, maxDragValue);
+
+		Text("Texture 2 Multiplier: ");
+		SameLine();
+		DragInt("##CeilingTexMultiplier2", &m_ceilingData.multiplier2, dragIntSpeed, minDragValue, maxDragValue);
+
+		m_map->UpdateCeilingData(m_ceilingData);
+	}
+}
+
+void UIWrapper::DrawViewport()
+{
+	Begin("Viewport");
+	{
+		int width, height;
+		SDL_GetRendererOutputSize(m_renderer, &width, &height);
+		SDL_PixelFormatEnum format = SDL_PIXELFORMAT_ARGB8888;
+		int pitch = width * SDL_BYTESPERPIXEL(format);
+		int bitDepth = 32;
+
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+		void* pixels = malloc(height * pitch);
+		if (!pixels)
+		{
+			std::cerr << "[UIWrapper] Failed to read allocate pixel array" << std::endl;
+		}
+
+		// Copy the pixels from the frontbuffer to pixels array.
+		if (SDL_RenderReadPixels(m_renderer, NULL, 0, pixels, pitch) != 0)
+		{
+			std::cerr << "[UIWrapper] Failed to read frontbuffer pixel data" << std::endl;
+		}
+
+		// Create a surface from the front buffer data.
+		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
+			pixels, width, height, bitDepth, pitch, format);
+
+		if (!surface)
+		{
+			std::cerr << "[UIWrapper] Failed to create frontbuffer surface" << std::endl;
+		}
+
+		m_viewportTexture = SDL_CreateTextureFromSurface(m_renderer, surface);
+		if (!m_viewportTexture)
+		{
+			std::cerr << "[UIWrapper] Failed to create frontbuffer texture" << std::endl;
+		}
+
+		// Display buffer as ImGui Image.
+		ImGui::Image((ImTextureID)(intptr_t)m_viewportTexture, viewport->Size);
+
+		SDL_FreeSurface(surface);
+		free(pixels);  // Important to free manually allocated memory
+	}
+	End();
 }

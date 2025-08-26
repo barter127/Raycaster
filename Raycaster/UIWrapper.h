@@ -34,7 +34,15 @@ private:
 	void HandleDocking();
 
 	void NewHLVLPanel(char* fileName);
+
+	void PaletteWidgets();
+
 	void TileMap();
+	void FloorWidgets();
+	void CeilingWidgets();
+	void DrawViewport();
+
+	bool m_dockspaceBuilt = false;
 
 	// Rendering and IO.
 	SDL_Renderer* m_renderer;
@@ -61,6 +69,7 @@ private:
 	bool m_saved = true;
 	bool m_creatingNewFile = false;
 	bool m_displayNewPanel = false;
+	bool m_deleteTexture = false;
 
 	SDL_Texture* m_viewportTexture = nullptr;
 
