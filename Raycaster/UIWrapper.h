@@ -31,16 +31,15 @@ public:
 	// void RemoveTexture(std::string path);
 
 private:
-	void HandleDocking();
-
 	void NewHLVLPanel(char* fileName);
-
 	void PaletteWidgets();
-
 	void TileMap();
 	void FloorWidgets();
 	void CeilingWidgets();
 	void DrawViewport();
+
+	void HandleDocking();
+	void DeletePaletteTexture(int textureIndex);
 
 	bool m_dockspaceBuilt = false;
 
@@ -69,7 +68,7 @@ private:
 	bool m_saved = true;
 	bool m_creatingNewFile = false;
 	bool m_displayNewPanel = false;
-	bool m_deleteTexture = false;
+	// bool m_deleteTexture = false;
 
 	SDL_Texture* m_viewportTexture = nullptr;
 
