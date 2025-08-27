@@ -1,19 +1,9 @@
-#include "Level1.h"
+#include "DemoLevel.h"
 
 #include <cmath>
-#include <iostream>
-#include <vector>
-
-#include "LevelRenderer.h"
 
 #include "Player.h"
-#include "Vector2D.h"
-#include "Collisions.h"
 #include "UIWrapper.h"
-
-#include "WindowData.h"
-
-#include "BenchMarkTimer.h"
 
 Level1::Level1(SDL_Window* window, SDL_Renderer* renderer) 
     : Screen(renderer)

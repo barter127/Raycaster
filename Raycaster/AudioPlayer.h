@@ -3,7 +3,6 @@
 #include <SDL_mixer.h>
 #include<string>
 #include<iostream>
-#include "AudioClip.h"
 
 #ifndef _AUDIO_PLAYER_H
 #define _AUDIO_PLAYER_H
@@ -29,10 +28,6 @@ public:
 	// Looping the amount of times specified by SetLoopAmount() or infinitely if unspecified.
 	// Returns error and plays nothing if no audio is bound to the class.
 	void Play();
-
-	// Plays the Mix_Chunk found in the AudioClip* once.
-	// To be used for on off SFX.
-	void PlayOneShot(AudioClip* audio, float volume);
 
 	// Stops any audio currently playing.
 	void Pause();

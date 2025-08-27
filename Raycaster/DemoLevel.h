@@ -8,12 +8,6 @@
 #include <vector>
 
 #include "Screen.h"
-#include "LMap.h"
-
-class Player;
-class LevelRenderer;
-class UIWrapper;
-class BoxCollider;
 
 class Level1 : Screen
 {

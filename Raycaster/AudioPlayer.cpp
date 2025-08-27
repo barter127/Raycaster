@@ -58,15 +58,6 @@ void AudioPlayer::Play()
 	}
 }
 
-void AudioPlayer::PlayOneShot(AudioClip* audio, float volume)
-{
-	// Set volume based off param.
-	SetVolume(volume);
-
-	// Play audio from audio clip. As it's one shot assume no loops.
-	m_channel = Mix_PlayChannel(m_channel, audio->GetAudio(), 0);
-}
-
 void AudioPlayer::Pause()
 {
 	Mix_Pause(m_channel);

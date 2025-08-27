@@ -90,7 +90,7 @@
     <ClCompile Include="Screen.cpp">
       <Filter>Source Files\Screen</Filter>
     </ClCompile>
-    <ClCompile Include="Level1.cpp">
+    <ClCompile Include="DemoLevel.cpp">
       <Filter>Source Files\Level</Filter>
     </ClCompile>
     <ClCompile Include="LMap.cpp">
@@ -101,6 +101,21 @@
     </ClCompile>
     <ClCompile Include="UIWrapper.cpp">
       <Filter>Source Files\Level</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioPlayer.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GameText.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3D.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -143,7 +158,7 @@
     <ClInclude Include="Texture2D.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Level1.h">
+    <ClInclude Include="DemoLevel.h">
       <Filter>Header Files\Level</Filter>
     </ClInclude>
     <ClInclude Include="LMap.h">
@@ -171,6 +186,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BenchMarkTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameText.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioPlayer.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

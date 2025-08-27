@@ -4,8 +4,7 @@
 
 // ImGUI dependencies
 using namespace ImGui;
-#include <imgui_internal.h>
-
+#include "imgui_internal.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 
@@ -209,7 +208,7 @@ void UIWrapper::HandleDocking()
 		ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
 
-		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.25f, nullptr, &dockspaceId);
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.325f, nullptr, &dockspaceId);
 		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
 		ImGuiID dock_id_center = dockspaceId;
 
@@ -466,7 +465,7 @@ void UIWrapper::DrawViewport()
 		ImGui::Image((ImTextureID)(intptr_t)m_viewportTexture, viewport->Size);
 
 		SDL_FreeSurface(surface);
-		free(pixels);  // Important to free manually allocated memory
+		free(pixels);
 	}
 	End();
 }

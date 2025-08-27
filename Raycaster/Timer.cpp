@@ -1,6 +1,5 @@
 #include "Timer.h"
 #include "GameText.h"
-#include "Commons.h"
 
 Timer::Timer(SDL_Renderer* renderer, std::string path, unsigned int fontSize)
 {
@@ -14,7 +13,8 @@ Timer::Timer(SDL_Renderer* renderer, std::string path, unsigned int fontSize)
 
 Timer::~Timer()
 {
-	DELETE_PTR(m_timerUI);
+	delete m_timerUI;
+	m_timerUI = nullptr;
 }
 
 void Timer::Update(float deltaTime)

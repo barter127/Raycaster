@@ -1,7 +1,7 @@
 #include "ScreenManager.h"
 #include "Screen.h"
 
-#include "Level1.h"
+#include "DemoLevel.h"
 
 #include <iostream>
 

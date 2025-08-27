@@ -1,7 +1,6 @@
 #include "Physics.h"
 
 #include <iostream>
-#include "Constants.h"
 
 // Initalise physics variables using default values or 0 where applicable.
 Physics::Physics()
