@@ -1,7 +1,6 @@
 #include "UIWrapper.h"
 
 #include <iostream>
-#include <algorithm>
 
 // ImGUI dependencies
 using namespace ImGui;
@@ -181,6 +180,49 @@ void UIWrapper::AddTexture(std::string path)
 	m_paletteTextures.push_back(tempTexture);
 }
 
+void UIWrapper::HandleDocking()
+{
+	ImGuiViewport* viewport = GetMainViewport();
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoTitleBar;
+
+	SetNextWindowPos(viewport->Pos);
+	SetNextWindowSize(viewport->Size);
+	SetNextWindowViewport(viewport->ID);
+
+	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	Begin("DockSpace", nullptr, windowFlags);
+	PopStyleVar(3);
+
+	ImGuiID dockspaceId = ImGui::GetID("DockSpace");
+	ImGui::DockSpace(dockspaceId, ImVec2(0,0), ImGuiDockNodeFlags_NoTabBar);
+
+	// Could move this to initaliser.
+	if (!m_dockspaceBuilt)
+	{
+		m_dockspaceBuilt = true;
+
+		ImGui::DockBuilderRemoveNode(dockspaceId);
+		ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
+		ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
+
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.25f, nullptr, &dockspaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
+		ImGuiID dock_id_center = dockspaceId;
+
+		ImGui::DockBuilderDockWindow("Editor", dock_id_left);
+		ImGui::DockBuilderDockWindow("Viewport", dock_id_center);
+		//ImGui::DockBuilderDockWindow("Properties", dock_id_right); Maybe I add this.
+
+		ImGui::DockBuilderFinish(dockspaceId);
+	}
+
+	ImGui::End();
+}
+
 // Consider expanding ImGuiFileBrowser to allow for the creation of files in the filebrowser.
 void UIWrapper::NewHLVLPanel(char* fileName)
 {
@@ -251,12 +293,6 @@ void UIWrapper::PaletteWidgets()
 
 			if (ImageButton(label.c_str(), texID, texButtonSize))
 			{
-				//if (m_deleteTexture)
-				//{
-				//	// Texture value stored in lvlArray starts at 1.
-				//	DeletePaletteTexture(i);
-				//}
-
 				m_selectedTexture = ++i;
 			}
 
@@ -265,7 +301,8 @@ void UIWrapper::PaletteWidgets()
 
 		SameLine();
 
-		if (Button("Add", ImVec2(30, 20)))
+		static ImVec2 addRemoveButtonSize = ImVec2(30, 20);
+		if (Button("Add", addRemoveButtonSize))
 		{
 			m_fileDialog.Open();
 			m_fileDialog.SetDirectory("Assets");
@@ -273,10 +310,10 @@ void UIWrapper::PaletteWidgets()
 
 		SameLine();
 
-		//if (Button("Remove", ImVec2(45, 20)))
-		//{
-		//	m_deleteTexture = true;
-		//}
+		if (Button("Remove", addRemoveButtonSize))
+		{
+
+		}
 	}
 }
 
@@ -433,71 +470,3 @@ void UIWrapper::DrawViewport()
 	}
 	End();
 }
-
-void UIWrapper::HandleDocking()
-{
-	ImGuiViewport* viewport = GetMainViewport();
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-		ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoTitleBar;
-
-	SetNextWindowPos(viewport->Pos);
-	SetNextWindowSize(viewport->Size);
-	SetNextWindowViewport(viewport->ID);
-
-	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	Begin("DockSpace", nullptr, windowFlags);
-	PopStyleVar(3);
-
-	ImGuiID dockspaceId = ImGui::GetID("DockSpace");
-	ImGui::DockSpace(dockspaceId, ImVec2(0, 0), ImGuiDockNodeFlags_NoTabBar);
-
-	// Could move this to initaliser.
-	if (!m_dockspaceBuilt)
-	{
-		m_dockspaceBuilt = true;
-
-		ImGui::DockBuilderRemoveNode(dockspaceId);
-		ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
-		ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
-
-		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.25f, nullptr, &dockspaceId);
-		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
-		ImGuiID dock_id_center = dockspaceId;
-
-		ImGui::DockBuilderDockWindow("Editor", dock_id_left);
-		ImGui::DockBuilderDockWindow("Viewport", dock_id_center);
-		//ImGui::DockBuilderDockWindow("Properties", dock_id_right); Maybe I add this.
-
-		ImGui::DockBuilderFinish(dockspaceId);
-	}
-
-	ImGui::End();
-}
-
-//void UIWrapper::DeletePaletteTexture(int textureIndex)
-//{
-//	LevelArray lvlArray = m_map->GetLevelArray();
-//
-//	for (int row = 0; row < lvlArray.size(); row++)
-//	{
-//		for (int col = 0; col < lvlArray[row].size(); col++)
-//		{
-//			int& value = lvlArray[row][col];
-//
-//			if (value == textureIndex + 1)
-//			{
-//				value = 0; // Remove the texture.
-//			}
-//			else if (value > textureIndex + 1)
-//			{
-//				value -= 1; // Decrement following indicies
-//			}
-//		}
-//	}
-//	m_map->UpdateLevelArray(lvlArray);
-//
-//	m_paletteTextures.erase(m_paletteTextures.begin() + textureIndex);
-//}

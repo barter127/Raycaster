@@ -140,7 +140,6 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
                 mapY += stepY;
                 side = 1;
             }
-
             // Check if ray has hit a wall.
             if (lArray[mapX][mapY] > 0) hit = 1;
         }
@@ -163,8 +162,6 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
 
         // Texturing calculations.
         int texNum = lArray[mapX][mapY] - 1;
-
-        if (texNum > m_levelTextureArray.size()) continue;
 
         int texWidth = m_levelTextureArray[texNum]->GetWidth();
         int texHeight = m_levelTextureArray[texNum]->GetHeight();
