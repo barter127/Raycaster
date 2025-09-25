@@ -9,6 +9,9 @@
 
 #include "Screen.h"
 
+class Player;
+class UIWrapper;
+
 class Level1 : Screen
 {
 public:

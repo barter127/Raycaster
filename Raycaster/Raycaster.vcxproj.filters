@@ -185,9 +185,6 @@
     <ClInclude Include="Vector2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BenchMarkTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
