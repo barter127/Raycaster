@@ -300,7 +300,7 @@ void UIWrapper::PaletteWidgets()
 
 		SameLine();
 
-		static ImVec2 addRemoveButtonSize = ImVec2(30, 20);
+		static ImVec2 addRemoveButtonSize = ImVec2(50, 20);
 		if (Button("Add", addRemoveButtonSize))
 		{
 			m_fileDialog.Open();

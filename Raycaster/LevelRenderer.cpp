@@ -190,7 +190,7 @@ void LevelRenderer::RenderWalls(Vector2D position, Vector2D direction, Vector2D 
             colour = GetPixelColour(m_levelTextureArray[texNum], texY, texX);
 
             // Make colour darker for y-sides.
-            if (side == 1) colour = (colour & 0xfefefefe) >> 1; // Later break colour down to RGBA and allow control of components.
+            // if (side == 1) colour = (colour & 0xfefefefe) >> 1; // Later break colour down to RGBA and allow control of components.
 
             CopyPixel(m_backBuffer, m_levelTextureArray[texNum], colour, x, y);
         }

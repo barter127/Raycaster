@@ -25,7 +25,7 @@ bool LevelTexture::LoadFromFile(std::string path)
 	m_width = m_surface->w;
 	m_height = m_surface->h;
 
-	CacheOptimiseLayout();
+	//CacheOptimiseLayout();
 
 	return true;
 }

@@ -71,28 +71,28 @@ void Player::Input(SDL_Event event)
         {
             switch (event.key.keysym.sym) 
             {
-                case SDLK_UP:
+                case SDLK_w:
                 {
                     m_forwardDown = true;
                     break;
                 }
 
                 // Move backwards.
-                case SDLK_DOWN:
+                case SDLK_s:
                 {
                     m_backwardsDown = true;
                     break;
                 }
 
                 // Rotate to the right.
-                case SDLK_RIGHT:
+                case SDLK_d:
                 {
                     m_rightDown = true;
                     break;
                 }
 
                 // Rotate to the left.
-                case SDLK_LEFT:
+                case SDLK_a:
                 {
                     m_leftDown = true;
                     break;
@@ -105,28 +105,28 @@ void Player::Input(SDL_Event event)
         {
             switch (event.key.keysym.sym)
             {
-                case SDLK_UP:
+                case SDLK_w:
                 {
                     m_forwardDown = false;
                     break;
                 }
 
                 // Move backwards.
-                case SDLK_DOWN:
+                case SDLK_s:
                 {
                     m_backwardsDown = false;;
                     break;
                 }
 
                 // Rotate to the right.
-                case SDLK_RIGHT:
+                case SDLK_d:
                 {
                     m_rightDown = false;
                     break;
                 }
 
                 // Rotate to the left.
-                case SDLK_LEFT:
+                case SDLK_a:
                 {
                     m_leftDown = false;
                     break;
