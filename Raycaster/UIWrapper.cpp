@@ -428,7 +428,7 @@ void UIWrapper::DrawViewport()
 	{
 		int width, height;
 		SDL_GetRendererOutputSize(m_renderer, &width, &height);
-		SDL_PixelFormatEnum format = SDL_PIXELFORMAT_ARGB8888;
+		SDL_PixelFormatEnum format = SDL_PIXELFORMAT_RGBA8888;
 		int pitch = width * SDL_BYTESPERPIXEL(format);
 		int bitDepth = 32;
 
@@ -441,7 +441,7 @@ void UIWrapper::DrawViewport()
 		}
 
 		// Copy the pixels from the frontbuffer to pixels array.
-		if (SDL_RenderReadPixels(m_renderer, NULL, 0, pixels, pitch) != 0)
+		if (SDL_RenderReadPixels(m_renderer, NULL, format, pixels, pitch) != 0)
 		{
 			std::cerr << "[UIWrapper] Failed to read frontbuffer pixel data" << std::endl;
 		}
