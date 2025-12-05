@@ -17,9 +17,14 @@ LevelRenderer::LevelRenderer(SDL_Renderer* renderer, LMap* map)
     for (std::string path : texturePaths)
     {
         LevelTexture* tempTexture = new LevelTexture(m_renderer);
-        tempTexture->LoadFromFile(path);
+
+        if (!tempTexture->LoadFromFile(path))
+            tempTexture->LoadFromFile("Assets/MissingTexture.png"); // Load missing texture (I really need flyweight pattern).
+
         m_levelTextureArray.push_back(tempTexture);
     }
+
+    ValidateLevelMap();
 
     m_floorTexture = new LevelTexture(m_renderer);
     m_floorTexture->LoadFromFile("Assets/Dirt_Road_64x64.png");
@@ -345,4 +350,36 @@ void LevelRenderer::CopyPixel(SDL_Surface* buffer, LevelTexture* levelTexture, U
         *(Uint32*)dstPixel = colour;
         break;
     }
+}
+
+void LevelRenderer::ValidateLevelMap()
+{
+    LevelArray cachedLevelArray = m_map->GetLevelArray();
+    int gridWidth = cachedLevelArray.size();
+    int gridLength = cachedLevelArray[0].size();
+
+    int maxTextureIndex = m_levelTextureArray.size() - 1;
+    bool firstMissingTexture = false;
+    for (int x = 0; x < gridWidth; x++)
+    {
+        for (int y = 0; y < gridLength; y++)
+        {
+            if (maxTextureIndex < cachedLevelArray[x][y])
+            {
+                if (!firstMissingTexture)
+                {
+                    firstMissingTexture = true;
+
+                    LevelTexture* tempTexture = new LevelTexture(m_renderer);
+                    tempTexture->LoadFromFile("Assets/MissingTexture.png"); // Load missing texture (I really need flyweight pattern).
+                    m_levelTextureArray.push_back(tempTexture);
+                }
+
+                cachedLevelArray[x][y] = maxTextureIndex + 1;
+            }
+        }
+    }
+
+    if (firstMissingTexture)
+        m_map->UpdateLevelArray(cachedLevelArray);
 }
